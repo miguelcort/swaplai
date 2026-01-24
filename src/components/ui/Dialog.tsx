@@ -1,5 +1,5 @@
 import { Dialog as HeadlessDialog, Transition } from '@headlessui/react'
-import { Fragment, ReactNode } from 'react'
+import { Fragment, type ReactNode } from 'react'
 import { X } from 'lucide-react'
 import { cn } from '../../lib/utils'
 

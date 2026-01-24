@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
-import { ArrowRight, Sparkles, Clock, CheckCircle, Star } from 'lucide-react'
+import { ArrowRight, Sparkles, CheckCircle, Star } from 'lucide-react'
 import { useChatStore } from '../stores/chatStore'
 
 export default function Dashboard() {

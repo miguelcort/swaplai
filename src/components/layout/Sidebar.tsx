@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, MessageSquare, Settings, Star, LogOut, User } from 'lucide-react'
+import { LayoutDashboard, MessageSquare, Settings, Star, LogOut } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/Avatar'
 import { useAuthStore } from '../../stores/authStore'
