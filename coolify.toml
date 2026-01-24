@@ -1,0 +1,13 @@
+[service]
+name = "hackathon-frontend"
+
+[build]
+dockerfile = "Dockerfile"
+
+[deploy]
+port = 80
+
+[env]
+VITE_SUPABASE_URL = "${SUPABASE_URL}"
+VITE_SUPABASE_ANON_KEY = "${SUPABASE_ANON_KEY}"
+VITE_API_URL = "${API_URL}"
