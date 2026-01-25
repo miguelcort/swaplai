@@ -15,6 +15,7 @@ import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Switch } from '../components/ui/Switch'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/Avatar'
+import { Header } from '../components/layout/Header'
 import { cn } from '../lib/utils'
 
 import { useSettingsStore } from '../stores/settingsStore'
@@ -62,11 +63,14 @@ export default function Settings() {
     }
 
     return (
-        <div className="container mx-auto p-6 max-w-6xl">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold tracking-tight text-text-primary">Settings</h1>
-                <p className="text-text-secondary mt-2">Manage your account settings and preferences.</p>
-            </div>
+        <div className="flex flex-col h-full">
+            <Header
+                title="Settings"
+                searchPlaceholder="Search settings..."
+            />
+
+            <div className="flex-1 overflow-auto p-8">
+                <div className="max-w-6xl mx-auto">
 
             <div className="flex flex-col md:flex-row gap-8">
                 {/* Sidebar Navigation */}
@@ -290,6 +294,8 @@ export default function Settings() {
                             </CardContent>
                         </Card>
                     )}
+                </div>
+            </div>
                 </div>
             </div>
         </div>
