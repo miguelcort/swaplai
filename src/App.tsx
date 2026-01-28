@@ -4,6 +4,9 @@ import { MainLayout } from './components/layout/MainLayout'
 import Dashboard from './pages/Dashboard'
 import Chat from './pages/Chat'
 import Settings from './pages/Settings'
+import ProjectDetail from './pages/ProjectDetail'
+import Team from './pages/Team'
+import Projects from './pages/Projects'
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
@@ -28,6 +31,9 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<MainLayout />}>
             <Route index element={<Dashboard />} />
+            <Route path="projects" element={<Projects />} />
+            <Route path="projects/:id" element={<ProjectDetail />} />
+            <Route path="team" element={<Team />} />
             <Route path="chat" element={<Chat />} />
             <Route path="chat/:id" element={<Chat />} />
             <Route path="settings" element={<Settings />} />
