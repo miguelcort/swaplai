@@ -1,10 +1,10 @@
 import { DashboardStats } from '../components/dashboard/DashboardStats'
 import { WalletSection } from '../components/dashboard/WalletSection'
 import { OverviewChart } from '../components/dashboard/OverviewChart'
-import { TransactionList } from '../components/dashboard/TransactionList'
+//import { TransactionList } from '../components/dashboard/TransactionList'
 import { GoalsSection } from '../components/dashboard/GoalsSection'
 import { ProjectsTable } from '../components/dashboard/ProjectsTable'
-import { Crown } from 'lucide-react'
+//import { Crown } from 'lucide-react'
 
 export default function Dashboard() {
     const currentDate = new Date().toLocaleDateString('en-US', {

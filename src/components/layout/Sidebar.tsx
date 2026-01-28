@@ -1,19 +1,19 @@
 import { Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, MessageSquare, Settings, Users, FileText, LogOut, ListTree, X, Folder } from 'lucide-react'
+import { LayoutDashboard, MessageSquare, Settings, Users, FileText, LogOut, ListTree, X } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/Avatar'
 import { useAuthStore } from '../../stores/authStore'
-import { useState } from 'react'
+//import { useState } from 'react'
 
 export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () => void }) {
     const location = useLocation()
     const { user, signOut } = useAuthStore()
     // We use the prop isOpen if provided, otherwise we could manage local state but for now we rely on props for mobile
     // Actually, to keep it simple, let's just use the props.
-    
+
     // NOTE: The previous local state 'isOpen' collided with the prop. 
     // We should trust the parent for mobile open/close state.
-    
+
     const navItems = [
         { icon: LayoutDashboard, label: 'Dashboard', href: '/', id: 'dashboard' },
         { icon: ListTree, label: 'Projects', href: '/projects', id: 'projects' },
@@ -56,7 +56,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
                         <span className="md:hidden text-lg font-bold text-gray-900">Swaplai</span>
                     </div>
                     {/* Close button for mobile */}
-                    <button 
+                    <button
                         onClick={onClose}
                         className="md:hidden ml-auto text-gray-500 hover:text-gray-700"
                     >

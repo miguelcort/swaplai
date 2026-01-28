@@ -197,10 +197,10 @@ export function ProjectsTable() {
                                                     <div
                                                         key={member.id}
                                                         className="w-8 h-8 rounded-full border-2 border-white bg-emerald-100 flex items-center justify-center"
-                                                        title={member.user?.email || 'User'}
+                                                        title={member.profiles?.email || 'User'}
                                                     >
                                                         <span className="text-xs font-medium text-emerald-700">
-                                                            {member.user?.email?.charAt(0).toUpperCase() || '?'}
+                                                            {member.profiles?.email?.charAt(0).toUpperCase() || '?'}
                                                         </span>
                                                     </div>
                                                 ))}
