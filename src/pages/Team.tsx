@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Plus, Users } from 'lucide-react'
 //import { useAuthStore } from '../stores/authStore'
 import { projectsApi } from '../lib/projectsApi'
+import { NotificationBell } from '../components/layout/NotificationBell'
 import { InviteTeamModal } from '../components/projects/InviteTeamModal'
 import { CreateProjectModal } from '../components/projects/CreateProjectModal'
 import { Card } from '../components/ui/Card'
@@ -54,6 +55,7 @@ export default function Team() {
                         <p className="text-sm text-gray-600 mt-1">Manage your project teams and invitations</p>
                     </div>
                     <div className="flex items-center gap-3 sm:gap-4 w-full md:w-auto">
+                        <NotificationBell />
                         <Button onClick={() => setIsCreateProjectModalOpen(true)} className="w-full md:w-auto">
                             <Plus className="h-4 w-4 mr-2" />
                             New Project

@@ -17,25 +17,23 @@ export default function Chat() {
         activeConversationId,
         setActiveConversation,
         conversations,
-        setConversations
+        loadConversations,
+        startNewChat
     } = useChatStore()
 
-    // Mock initial data
+    // Load conversations on mount
     useEffect(() => {
-        // Add some dummy conversations if empty
-        if (conversations.length === 0) {
-            setConversations([
-                { id: '1', user_id: '1', title: 'Project Brainstorming', is_starred: true, created_at: '', updated_at: '' },
-                { id: '2', user_id: '1', title: 'Debug Session #24', is_starred: false, created_at: '', updated_at: '' },
-            ])
-        }
-    }, [conversations.length, setConversations])
+        loadConversations()
+    }, [loadConversations])
 
+    // Handle URL changes
     useEffect(() => {
         if (id) {
             setActiveConversation(id)
+        } else {
+            startNewChat()
         }
-    }, [id, setActiveConversation])
+    }, [id, setActiveConversation, startNewChat])
 
     const handleSendMessage = async (content: string) => {
         await sendMessage(content)
@@ -43,8 +41,6 @@ export default function Chat() {
 
     const handleNewChat = () => {
         navigate('/chat')
-        setActiveConversation('new')
-        // Clear messages or handle new state
     }
 
     const activeConversation = conversations.find(c => c.id === activeConversationId)
@@ -76,4 +72,3 @@ export default function Chat() {
         </div>
     )
 }
-

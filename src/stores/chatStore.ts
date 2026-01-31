@@ -8,11 +8,15 @@ interface ChatState {
     messages: Message[]
     isLoading: boolean
 
-    setActiveConversation: (id: string) => void
+    setActiveConversation: (id: string | null) => void
     addMessage: (message: Message) => void
     setMessages: (messages: Message[]) => void
     setConversations: (conversations: Conversation[]) => void
     sendMessage: (content: string) => Promise<void>
+    
+    loadConversations: () => Promise<void>
+    loadMessages: (conversationId: string) => Promise<void>
+    startNewChat: () => void
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -21,8 +25,42 @@ export const useChatStore = create<ChatState>((set, get) => ({
     messages: [],
     isLoading: false,
 
+    loadConversations: async () => {
+        try {
+            const conversations = await api.getConversations()
+            set({ conversations })
+        } catch (error) {
+            console.error('Failed to load conversations:', error)
+        }
+    },
+
+    loadMessages: async (conversationId: string) => {
+        set({ isLoading: true, messages: [] })
+        try {
+            const messages = await api.getConversationMessages(conversationId)
+            set({ messages })
+        } catch (error) {
+            console.error('Failed to load messages:', error)
+        } finally {
+            set({ isLoading: false })
+        }
+    },
+
+    setActiveConversation: (id) => {
+        set({ activeConversationId: id })
+        if (id && id !== 'new') {
+            get().loadMessages(id)
+        } else {
+            set({ messages: [] })
+        }
+    },
+
+    startNewChat: () => {
+        set({ activeConversationId: null, messages: [] })
+    },
+
     sendMessage: async (content: string) => {
-        const { messages, activeConversationId, addMessage } = get()
+        const { messages, activeConversationId, addMessage, loadConversations } = get()
 
         // 1. Add User Message
         const userMsg: Message = {
@@ -46,12 +84,19 @@ export const useChatStore = create<ChatState>((set, get) => ({
             // 3. Add AI Message
             const aiMsg: Message = {
                 id: crypto.randomUUID(),
-                conversation_id: activeConversationId || 'new',
+                conversation_id: response.conversation_id || activeConversationId || 'new',
                 role: 'assistant',
                 content: response.content,
                 created_at: new Date().toISOString()
             }
             addMessage(aiMsg)
+            
+            // 4. Update conversation ID if it was new
+            if (!activeConversationId && response.conversation_id) {
+                set({ activeConversationId: response.conversation_id })
+                // Refresh conversations list to show the new one
+                loadConversations()
+            }
         } catch (error) {
             console.error('Failed to send message:', error)
             // Optionally add error message to chat
@@ -59,8 +104,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
             set({ isLoading: false })
         }
     },
-
-    setActiveConversation: (id) => set({ activeConversationId: id }),
 
     addMessage: (message) =>
         set((state) => ({ messages: [...state.messages, message] })),

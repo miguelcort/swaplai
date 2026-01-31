@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { MainLayout } from './components/layout/MainLayout'
 import Dashboard from './pages/Dashboard'
 import Chat from './pages/Chat'
+import Notifications from './pages/Notifications'
 import Settings from './pages/Settings'
 import ProjectDetail from './pages/ProjectDetail'
 import Team from './pages/Team'
@@ -36,6 +37,7 @@ function App() {
             <Route path="team" element={<Team />} />
             <Route path="chat" element={<Chat />} />
             <Route path="chat/:id" element={<Chat />} />
+            <Route path="notifications" element={<Notifications />} />
             <Route path="settings" element={<Settings />} />
           </Route>
         </Route>

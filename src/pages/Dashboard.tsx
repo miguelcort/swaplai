@@ -4,6 +4,7 @@ import { OverviewChart } from '../components/dashboard/OverviewChart'
 //import { TransactionList } from '../components/dashboard/TransactionList'
 import { GoalsSection } from '../components/dashboard/GoalsSection'
 import { ProjectsTable } from '../components/dashboard/ProjectsTable'
+import { NotificationBell } from '../components/layout/NotificationBell'
 //import { Crown } from 'lucide-react'
 
 export default function Dashboard() {
@@ -24,6 +25,7 @@ export default function Dashboard() {
                         <p className="text-sm text-gray-600 mt-1">Monitor and control what happens with your money today for financial health.</p>
                     </div>
                     <div className="flex items-center gap-3 sm:gap-4 w-full md:w-auto">
+                        <NotificationBell />
                         <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg flex-1 md:flex-none justify-center md:justify-start">
                             <svg className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -35,7 +37,8 @@ export default function Dashboard() {
                         </button>
                     </div>
                 </div>
-            </div>
+            </div>            
+
 
             {/* Main Content */}
             <div className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
@@ -57,6 +60,7 @@ export default function Dashboard() {
 
                 </div>
             </div>
+
         </div>
     )
 }

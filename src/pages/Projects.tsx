@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { projectsApi } from '../lib/projectsApi'
 import type { Project } from '../types/projects'
 import { CreateTaskModal } from '../components/projects/CreateTaskModal'
+import { NotificationBell } from '../components/layout/NotificationBell'
 
 export default function Projects() {
     const [projects, setProjects] = useState<Project[]>([])
@@ -47,6 +48,9 @@ export default function Projects() {
                         <p className="text-sm text-gray-600 mt-1">
                             View all your projects and create tasks for each one.
                         </p>
+                    </div>
+                    <div>
+                        <NotificationBell />
                     </div>
                 </div>
             </div>

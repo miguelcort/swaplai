@@ -1,5 +1,6 @@
 import { Search, Plus } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
+import { NotificationBell } from './NotificationBell'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/Avatar'
 
 interface HeaderProps {
@@ -16,6 +17,7 @@ export function Header({
     searchPlaceholder = "Search"
 }: HeaderProps) {
     const { user } = useAuthStore()
+
     const initials = user?.user_metadata?.full_name?.substring(0, 2).toUpperCase() ||
                      user?.email?.substring(0, 2).toUpperCase() || "U"
 
@@ -36,9 +38,12 @@ export function Header({
                         <input
                             type="text"
                             placeholder={searchPlaceholder}
-                            className="w-full h-10 pl-10 pr-4 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                            className="w-full h-10 pl-10 pr-4 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
                         />
                     </div>
+
+                    {/* Notifications Bell */}
+                    <NotificationBell />
 
                     {/* New Button */}
                     {onNewClick && (
@@ -46,7 +51,7 @@ export function Header({
                             {/* Desktop version */}
                             <button
                                 onClick={onNewClick}
-                                className="hidden sm:flex px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors items-center gap-2"
+                                className="hidden sm:flex px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-hover transition-colors items-center gap-2"
                             >
                                 <Plus className="h-4 w-4" />
                                 <span className="hidden md:inline">{newButtonText}</span>
@@ -55,7 +60,7 @@ export function Header({
                             {/* Mobile version - Icon only */}
                             <button
                                 onClick={onNewClick}
-                                className="sm:hidden flex items-center justify-center h-10 w-10 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                                className="sm:hidden flex items-center justify-center h-10 w-10 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"
                             >
                                 <Plus className="h-5 w-5" />
                             </button>
@@ -65,7 +70,7 @@ export function Header({
                     {/* Avatar */}
                     <Avatar className="h-8 w-8 border-2 border-gray-100">
                         <AvatarImage src={user?.user_metadata?.avatar_url || "https://github.com/shadcn.png"} />
-                        <AvatarFallback className="bg-indigo-100 text-indigo-700 font-semibold text-xs">
+                        <AvatarFallback className="bg-primary/10 text-primary-dark font-semibold text-xs">
                             {initials}
                         </AvatarFallback>
                     </Avatar>
@@ -79,7 +84,7 @@ export function Header({
                     <input
                         type="text"
                         placeholder={searchPlaceholder}
-                        className="w-full h-10 pl-10 pr-4 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                        className="w-full h-10 pl-10 pr-4 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
                     />
                 </div>
             </div>

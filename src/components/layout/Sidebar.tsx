@@ -18,7 +18,6 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
         { icon: LayoutDashboard, label: 'Dashboard', href: '/', id: 'dashboard' },
         { icon: ListTree, label: 'Projects', href: '/projects', id: 'projects' },
         { icon: MessageSquare, label: 'Conversations', href: '/chat', id: 'conversations' },
-        { icon: FileText, label: 'Documents', href: '/documents', id: 'documents' },
         { icon: Users, label: 'Team', href: '/team', id: 'team' },
         { icon: Settings, label: 'Settings', href: '/settings', id: 'settings' },
     ]
