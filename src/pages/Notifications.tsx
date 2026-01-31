@@ -10,8 +10,7 @@ import {
     Briefcase, 
     Calendar, 
     Info,
-    MailOpen,
-    Mail
+    MailOpen
 } from 'lucide-react'
 import { cn } from '../lib/utils'
 

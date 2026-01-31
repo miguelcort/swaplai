@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { cn } from '../../lib/utils'
+
 import { type Message } from '../../types/chat.types'
 import { Avatar, AvatarFallback } from '../ui/Avatar'
 import { User, Sparkles, Copy, RotateCcw, ThumbsUp, ThumbsDown, Check } from 'lucide-react'
