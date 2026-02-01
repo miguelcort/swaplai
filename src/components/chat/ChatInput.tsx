@@ -37,8 +37,8 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
     }, [input])
 
     return (
-        <div className="relative flex items-end gap-2 p-4 bg-white border-t border-border">
-            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-gray-600 mb-0.5">
+        <div className="relative flex items-end gap-2 p-4 bg-[#0A0A0A] border-t border-[#333333]">
+            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white rounded-none hover:bg-[#333333]">
                 <Paperclip className="h-5 w-5" />
             </Button>
 
@@ -50,15 +50,15 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     disabled={disabled}
-                    placeholder="Send a message..."
-                    className="w-full resize-none rounded-2xl border border-border bg-gray-50 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary max-h-[200px]"
+                    placeholder="Type your command..."
+                    className="w-full resize-none rounded-none border border-[#333333] bg-[#0A0A0A] px-4 py-[9px] text-sm text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary max-h-[200px] shadow-none min-h-[40px] placeholder:text-gray-600 font-mono"
                 />
             </div>
 
             <Button
                 onClick={handleSend}
                 disabled={disabled || !input.trim()}
-                className="mb-0.5 rounded-xl h-10 w-10 p-0 flex items-center justify-center bg-primary hover:bg-primary-hover text-white disabled:bg-gray-200"
+                className="rounded-none h-10 w-10 p-0 flex items-center justify-center bg-primary hover:bg-primary/90 text-black disabled:bg-[#333333] disabled:text-gray-600 shadow-none transition-all"
             >
                 <Send className="h-4 w-4" />
             </Button>

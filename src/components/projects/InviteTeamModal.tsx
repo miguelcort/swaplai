@@ -44,22 +44,22 @@ export function InviteTeamModal({ isOpen, onClose, projectId, onSuccess }: Invit
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Invite Team Member">
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
                 {error && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+                    <div className="p-3 bg-[#0A0A0A] border border-red-900 text-sm text-red-500 font-mono">
                         {error}
                     </div>
                 )}
 
                 {success && (
-                    <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-600">
+                    <div className="p-3 bg-[#0A0A0A] border border-emerald-900 text-sm text-emerald-500 font-mono">
                         Invitation sent successfully!
                     </div>
                 )}
 
                 {/* Email */}
                 <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="email" className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider font-mono">
                         Email Address *
                     </label>
                     <input
@@ -68,46 +68,46 @@ export function InviteTeamModal({ isOpen, onClose, projectId, onSuccess }: Invit
                         required
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                        className="w-full px-4 py-3 bg-[#0A0A0A] border border-[#333333] text-white focus:outline-none focus:border-[#C9A962] transition-colors font-mono"
                         placeholder="colleague@example.com"
                     />
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-2 text-xs text-gray-500 font-mono">
                         The user must have an account to receive the invitation
                     </p>
                 </div>
 
                 {/* Role */}
                 <div>
-                    <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="role" className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider font-mono">
                         Role
                     </label>
                     <select
                         id="role"
                         value={formData.role}
                         onChange={(e) => setFormData({ ...formData, role: e.target.value as MemberRole })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                        className="w-full px-4 py-3 bg-[#0A0A0A] border border-[#333333] text-white focus:outline-none focus:border-[#C9A962] transition-colors font-mono appearance-none"
                     >
                         <option value="member">Member</option>
                         <option value="admin">Admin</option>
                     </select>
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-2 text-xs text-gray-500 font-mono">
                         Admins can invite other members and manage tasks
                     </p>
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-3 pt-4">
+                <div className="flex gap-4 pt-6">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                        className="flex-1 px-4 py-3 border border-[#333333] text-gray-400 hover:text-white hover:border-white transition-colors font-mono uppercase text-xs tracking-wider font-bold"
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
                         disabled={loading || !formData.email}
-                        className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="flex-1 px-4 py-3 bg-[#C9A962] text-[#0A0A0A] hover:bg-[#b09355] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-mono uppercase text-xs tracking-wider font-bold"
                     >
                         <UserPlus className="h-4 w-4" />
                         {loading ? 'Sending...' : 'Send Invitation'}

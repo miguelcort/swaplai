@@ -9,24 +9,25 @@ import { InviteTeamModal } from '../projects/InviteTeamModal'
 const getStatusColor = (status: ProjectStatus) => {
     switch (status) {
         case 'Active':
-            return 'bg-emerald-100 text-emerald-700'
+            return 'bg-primary text-black border-transparent'
         case 'Recent':
-            return 'bg-blue-100 text-blue-700'
+            return 'bg-[#333333] text-white border-transparent'
         case 'Idle':
-            return 'bg-yellow-100 text-yellow-700'
+            return 'bg-[#333333] text-gray-400 border-transparent'
         case 'Completed':
-            return 'bg-gray-100 text-gray-700'
+            return 'bg-white text-black border-transparent'
         case 'Archived':
-            return 'bg-gray-100 text-gray-500'
+            return 'bg-transparent text-gray-500 border border-[#333333]'
         default:
-            return 'bg-gray-100 text-gray-700'
+            return 'bg-[#333333] text-white border-transparent'
     }
 }
 
 const getProgressColor = (progress: number) => {
-    if (progress < 30) return 'bg-red-500'
-    if (progress < 70) return 'bg-yellow-500'
-    return 'bg-emerald-500'
+    if (progress >= 75) return 'bg-green-500'
+    if (progress >= 50) return 'bg-primary'
+    if (progress >= 25) return 'bg-yellow-500'
+    return 'bg-red-500'
 }
 
 const calculateProgress = (project: Project): number => {
@@ -88,22 +89,24 @@ export function ProjectsTable() {
 
     if (loading) {
         return (
-            <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-emerald-600 border-r-transparent"></div>
-                <p className="mt-4 text-gray-600">Loading projects...</p>
+            <div className="bg-[#0A0A0A] rounded-none border border-[#333333] p-12 text-center">
+                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
+                <p className="mt-4 text-gray-400 font-mono">Loading projects...</p>
             </div>
         )
     }
 
     return (
         <>
-            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <div className="bg-[#0A0A0A] rounded-none border border-[#333333] overflow-hidden relative">
+                 <div className="absolute top-4 left-4 text-xs font-mono text-primary opacity-50 z-10">07</div>
+                
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-gray-900">Projects</h2>
+                <div className="px-6 py-4 border-b border-[#333333] flex items-center justify-between pl-12">
+                    <h2 className="text-lg font-semibold text-white uppercase tracking-wider font-sans">Projects</h2>
                     <button
                         onClick={() => setCreateModalOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium"
+                        className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-none hover:bg-gray-200 transition-colors text-sm font-medium uppercase tracking-wider font-mono"
                     >
                         <Plus className="h-4 w-4" />
                         New Project
@@ -114,41 +117,41 @@ export function ProjectsTable() {
                 {projects.length > 0 ? (
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="bg-gray-50 border-b border-gray-200">
+                            <thead className="bg-primary border-b border-[#333333]">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider font-mono">
                                         Project
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider font-mono">
                                         Status
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider font-mono">
                                         Created Date
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider font-mono">
                                         Last Activity
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider font-mono">
                                         Progress
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider font-mono">
                                         Team
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider font-mono">
                                         Action
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
+                            <tbody className="bg-[#0A0A0A] divide-y divide-[#333333]">
                                 {projects.map((project) => (
-                                    <tr key={project.id} className="hover:bg-gray-50 transition-colors">
+                                    <tr key={project.id} className="hover:bg-[#333333] transition-colors group">
                                         {/* Project Name */}
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-gray-900">
+                                            <div className="text-sm font-medium text-white font-sans">
                                                 {project.name}
                                             </div>
                                             {project.description && (
-                                                <div className="text-xs text-gray-500 truncate max-w-xs">
+                                                <div className="text-xs text-gray-500 truncate max-w-xs font-mono">
                                                     {project.description}
                                                 </div>
                                             )}
@@ -157,7 +160,7 @@ export function ProjectsTable() {
                                         {/* Status */}
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span
-                                                className={`inline-flex px-2.5 py-1 rounded-md text-xs font-medium ${getStatusColor(
+                                                className={`inline-flex px-2.5 py-1 rounded-none text-xs font-medium font-mono uppercase tracking-wider ${getStatusColor(
                                                     project.status
                                                 )}`}
                                             >
@@ -166,27 +169,27 @@ export function ProjectsTable() {
                                         </td>
 
                                         {/* Created Date */}
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-mono">
                                             {new Date(project.created_at).toLocaleDateString()}
                                         </td>
 
                                         {/* Last Activity */}
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-mono">
                                             {new Date(project.updated_at).toLocaleDateString()}
                                         </td>
 
                                         {/* Progress */}
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-2">
-                                                <div className="flex-1 bg-gray-200 rounded-full h-2 max-w-[120px]">
+                                                <div className="flex-1 bg-[#333333] rounded-none h-1 max-w-[120px]">
                                                     <div
-                                                        className={`h-2 rounded-full ${getProgressColor(
+                                                        className={`h-1 rounded-none ${getProgressColor(
                                                             project.progress || 0
                                                         )}`}
                                                         style={{ width: `${project.progress || 0}%` }}
                                                     />
                                                 </div>
-                                                <span className="text-xs text-gray-600">{project.progress || 0}%</span>
+                                                <span className="text-xs text-gray-400 font-mono">{project.progress || 0}%</span>
                                             </div>
                                         </td>
 
@@ -196,17 +199,15 @@ export function ProjectsTable() {
                                                 {project.members && project.members.slice(0, 4).map((member) => (
                                                     <div
                                                         key={member.id}
-                                                        className="w-8 h-8 rounded-full border-2 border-white bg-emerald-100 flex items-center justify-center"
+                                                        className="w-8 h-8 rounded-none border border-[#0A0A0A] bg-[#333333] flex items-center justify-center text-white text-xs font-mono"
                                                         title={member.profiles?.email || 'User'}
                                                     >
-                                                        <span className="text-xs font-medium text-emerald-700">
-                                                            {member.profiles?.email?.charAt(0).toUpperCase() || '?'}
-                                                        </span>
+                                                        {member.profiles?.email?.charAt(0).toUpperCase() || '?'}
                                                     </div>
                                                 ))}
                                                 {project.members && project.members.length > 4 && (
-                                                    <div className="w-8 h-8 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center">
-                                                        <span className="text-xs font-medium text-gray-600">
+                                                    <div className="w-8 h-8 rounded-none border border-[#0A0A0A] bg-[#333333] flex items-center justify-center">
+                                                        <span className="text-xs font-medium text-gray-400 font-mono">
                                                             +{project.members.length - 4}
                                                         </span>
                                                     </div>
@@ -220,7 +221,7 @@ export function ProjectsTable() {
                                                 onClick={() =>
                                                     setOpenMenuId(openMenuId === project.id ? null : project.id)
                                                 }
-                                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                                                className="text-gray-400 hover:text-white transition-colors"
                                             >
                                                 <MoreVertical className="h-5 w-5" />
                                             </button>
@@ -235,22 +236,22 @@ export function ProjectsTable() {
                                                     />
 
                                                     {/* Menu */}
-                                                    <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
+                                                    <div className="absolute right-0 mt-2 w-40 bg-[#0A0A0A] rounded-none shadow-lg border border-[#333333] py-1 z-20">
                                                         <button
                                                             onClick={() => handleAction(project.id, 'open')}
-                                                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                                            className="w-full px-4 py-2 text-left text-sm text-white hover:bg-[#333333] transition-colors font-mono uppercase tracking-wider"
                                                         >
                                                             Open
                                                         </button>
                                                         <button
                                                             onClick={() => handleAction(project.id, 'manage')}
-                                                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                                            className="w-full px-4 py-2 text-left text-sm text-white hover:bg-[#333333] transition-colors font-mono uppercase tracking-wider"
                                                         >
                                                             Manage Team
                                                         </button>
                                                         <button
                                                             onClick={() => handleAction(project.id, 'remove')}
-                                                            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+                                                            className="w-full px-4 py-2 text-left text-sm text-accent-red hover:bg-[#333333] transition-colors font-mono uppercase tracking-wider"
                                                         >
                                                             Remove
                                                         </button>
@@ -265,10 +266,10 @@ export function ProjectsTable() {
                     </div>
                 ) : (
                     <div className="px-6 py-12 text-center">
-                        <p className="text-gray-500 mb-4">No projects yet</p>
+                        <p className="text-gray-500 mb-4 font-mono">No projects yet</p>
                         <button
                             onClick={() => setCreateModalOpen(true)}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-white text-black rounded-none hover:bg-gray-200 transition-colors text-sm font-medium uppercase tracking-wider font-mono"
                         >
                             <Plus className="h-4 w-4" />
                             Create Your First Project

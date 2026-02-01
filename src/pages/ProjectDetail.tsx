@@ -44,21 +44,21 @@ export default function ProjectDetail() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-emerald-600 border-r-transparent"></div>
+            <div className="flex items-center justify-center min-h-screen bg-[#0A0A0A]">
+                <div className="inline-block h-8 w-8 animate-spin border-2 border-solid border-[#C9A962] border-r-transparent"></div>
             </div>
         )
     }
 
     if (!project) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen">
-                <p className="text-gray-600 mb-4">Project not found</p>
+            <div className="flex flex-col items-center justify-center min-h-screen bg-[#0A0A0A]">
+                <p className="text-gray-400 mb-4 font-mono">PROJECT NOT FOUND</p>
                 <button
                     onClick={() => navigate('/')}
-                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+                    className="px-6 py-3 bg-[#C9A962] text-[#0A0A0A] hover:bg-[#b09355] font-bold font-mono uppercase tracking-wider"
                 >
-                    Go to Dashboard
+                    Return to Dashboard
                 </button>
             </div>
         )
@@ -70,29 +70,29 @@ export default function ProjectDetail() {
         .reduce((sum, task) => sum + task.cost, 0)
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-[#0A0A0A]">
             {/* Header */}
-            <div className="bg-white border-b border-gray-200">
+            <div className="bg-[#0A0A0A] border-b border-[#333333]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <button
                         onClick={() => navigate('/')}
-                        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
+                        className="flex items-center gap-2 text-gray-400 hover:text-white mb-6 font-mono text-sm uppercase tracking-wider transition-colors"
                     >
                         <ArrowLeft className="h-4 w-4" />
                         Back to Dashboard
                     </button>
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">{project.name}</h1>
+                            <h1 className="text-3xl font-bold text-white font-sans uppercase tracking-wide">{project.name}</h1>
                             {project.description && (
-                                <p className="text-gray-600 mt-2">{project.description}</p>
+                                <p className="text-gray-400 mt-2 font-mono text-sm max-w-2xl">{project.description}</p>
                             )}
                         </div>
 
                         <button
                             onClick={() => setInviteModalOpen(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                            className="flex items-center justify-center gap-2 px-6 py-3 bg-transparent border border-[#333333] text-white hover:bg-[#333333] transition-colors font-mono uppercase text-xs tracking-wider font-bold"
                         >
                             <UserPlus className="h-4 w-4" />
                             Invite Team
@@ -100,22 +100,22 @@ export default function ProjectDetail() {
                     </div>
 
                     {/* Stats */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-                        <div className="bg-gray-50 rounded-lg p-4">
-                            <p className="text-sm text-gray-600">Status</p>
-                            <p className="text-lg font-semibold text-gray-900">{project.status}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8">
+                        <div className="bg-[#0A0A0A] border border-[#333333] p-4 group hover:border-[#C9A962] transition-colors">
+                            <p className="text-xs text-gray-500 font-mono uppercase tracking-wider">Status</p>
+                            <p className="text-lg font-bold text-white font-sans mt-1 uppercase">{project.status}</p>
                         </div>
-                        <div className="bg-gray-50 rounded-lg p-4">
-                            <p className="text-sm text-gray-600">Budget</p>
-                            <p className="text-lg font-semibold text-gray-900">${project.budget.toFixed(2)}</p>
+                        <div className="bg-[#0A0A0A] border border-[#333333] p-4 group hover:border-[#C9A962] transition-colors">
+                            <p className="text-xs text-gray-500 font-mono uppercase tracking-wider">Budget</p>
+                            <p className="text-lg font-bold text-[#C9A962] font-mono mt-1">${project.budget.toFixed(2)}</p>
                         </div>
-                        <div className="bg-gray-50 rounded-lg p-4">
-                            <p className="text-sm text-gray-600">Total Cost</p>
-                            <p className="text-lg font-semibold text-gray-900">${totalCost.toFixed(2)}</p>
+                        <div className="bg-[#0A0A0A] border border-[#333333] p-4 group hover:border-[#C9A962] transition-colors">
+                            <p className="text-xs text-gray-500 font-mono uppercase tracking-wider">Total Cost</p>
+                            <p className="text-lg font-bold text-white font-mono mt-1">${totalCost.toFixed(2)}</p>
                         </div>
-                        <div className="bg-gray-50 rounded-lg p-4">
-                            <p className="text-sm text-gray-600">Paid</p>
-                            <p className="text-lg font-semibold text-emerald-600">${paidAmount.toFixed(2)}</p>
+                        <div className="bg-[#0A0A0A] border border-[#333333] p-4 group hover:border-[#C9A962] transition-colors">
+                            <p className="text-xs text-gray-500 font-mono uppercase tracking-wider">Paid</p>
+                            <p className="text-lg font-bold text-[#C9A962] font-mono mt-1">${paidAmount.toFixed(2)}</p>
                         </div>
                     </div>
                 </div>
@@ -125,31 +125,27 @@ export default function ProjectDetail() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Team Members */}
-                    <div className="bg-white rounded-lg border border-gray-200 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-4">Team Members</h2>
-                        <div className="space-y-3">
+                    <div className="bg-[#0A0A0A] border border-[#333333] p-6">
+                        <h2 className="text-lg font-bold text-white mb-6 font-sans uppercase tracking-wide border-b border-[#333333] pb-4">Team Members</h2>
+                        <div className="space-y-4">
                             {project.members && project.members.length > 0 ? (
                                 project.members.map((member) => (
-                                    <div key={member.id} className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center overflow-hidden">
-                                            {member.profiles?.avatar_url ? (
-                                                <img src={member.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
-                                            ) : (
-                                                <span className="text-sm font-medium text-emerald-700">
-                                                    {member.profiles?.full_name?.charAt(0).toUpperCase() || member.profiles?.email?.charAt(0).toUpperCase() || '?'}
-                                                </span>
-                                            )}
+                                    <div key={member.id} className="flex items-center gap-3 group">
+                                        <div className="w-10 h-10 bg-black border border-[#333333] flex items-center justify-center overflow-hidden group-hover:border-[#C9A962] transition-colors">
+                                            <span className="text-sm font-bold text-white font-mono">
+                                                {member.profiles?.full_name?.substring(0, 2).toUpperCase() || member.profiles?.email?.substring(0, 2).toUpperCase() || '?'}
+                                            </span>
                                         </div>
-                                        <div className="flex-1">
-                                            <p className="text-sm font-medium text-gray-900">
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-bold text-white truncate font-sans">
                                                 {member.profiles?.full_name || member.profiles?.email || 'Unknown User'}
                                             </p>
-                                            <p className="text-xs text-gray-500 capitalize">{member.role}</p>
+                                            <p className="text-xs text-gray-500 capitalize font-mono">{member.role}</p>
                                         </div>
                                         <span
-                                            className={`text-xs px-2 py-1 rounded ${member.status === 'accepted'
-                                                    ? 'bg-emerald-100 text-emerald-700'
-                                                    : 'bg-yellow-100 text-yellow-700'
+                                            className={`text-xs px-2 py-1 font-mono uppercase tracking-wider border ${member.status === 'accepted'
+                                                    ? 'border-[#C9A962] text-[#C9A962]'
+                                                    : 'border-yellow-700 text-yellow-700'
                                                 }`}
                                         >
                                             {member.status}
@@ -157,18 +153,18 @@ export default function ProjectDetail() {
                                     </div>
                                 ))
                             ) : (
-                                <p className="text-sm text-gray-500">No team members yet</p>
+                                <p className="text-sm text-gray-500 font-mono">No team members yet</p>
                             )}
                         </div>
                     </div>
 
                     {/* Tasks */}
-                    <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-6">
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-lg font-semibold text-gray-900">Tasks</h2>
+                    <div className="lg:col-span-2 bg-[#0A0A0A] border border-[#333333] p-6">
+                        <div className="flex items-center justify-between mb-6 border-b border-[#333333] pb-4">
+                            <h2 className="text-lg font-bold text-white font-sans uppercase tracking-wide">Tasks</h2>
                             <button 
                                 onClick={() => setCreateTaskModalOpen(true)}
-                                className="flex items-center gap-2 px-3 py-1.5 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                                className="flex items-center gap-2 px-4 py-2 bg-[#C9A962] text-[#0A0A0A] hover:bg-[#b09355] transition-colors font-mono uppercase text-xs tracking-wider font-bold"
                             >
                                 <Plus className="h-4 w-4" />
                                 Add Task
@@ -180,50 +176,50 @@ export default function ProjectDetail() {
                                 tasks.map((task) => (
                                     <div
                                         key={task.id}
-                                        className="border border-gray-200 rounded-lg p-4 hover:border-emerald-300 transition-colors"
+                                        className="border border-[#333333] p-4 hover:border-[#C9A962] transition-colors group bg-[#0F0F0F]"
                                     >
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
-                                                <h3 className="font-medium text-gray-900">{task.title}</h3>
+                                                <h3 className="font-bold text-white font-sans uppercase tracking-wide text-sm">{task.title}</h3>
                                                 {task.description && (
-                                                    <p className="text-sm text-gray-600 mt-1">{task.description}</p>
+                                                    <p className="text-sm text-gray-400 mt-2 font-mono leading-relaxed">{task.description}</p>
                                                 )}
-                                                <div className="flex items-center gap-4 mt-2">
+                                                <div className="flex flex-wrap items-center gap-2 mt-4">
                                                     <span
-                                                        className={`text-xs px-2 py-1 rounded ${task.status === 'completed'
-                                                                ? 'bg-emerald-100 text-emerald-700'
+                                                        className={`text-xs px-2 py-1 font-mono uppercase tracking-wider border ${task.status === 'completed'
+                                                                ? 'border-emerald-900 text-emerald-500'
                                                                 : task.status === 'in_progress'
-                                                                    ? 'bg-blue-100 text-blue-700'
-                                                                    : 'bg-gray-100 text-gray-700'
+                                                                    ? 'border-blue-900 text-blue-500'
+                                                                    : 'border-[#333333] text-gray-500'
                                                             }`}
                                                     >
                                                         {task.status.replace('_', ' ')}
                                                     </span>
                                                     <span
-                                                        className={`text-xs px-2 py-1 rounded ${task.priority === 'urgent'
-                                                                ? 'bg-red-100 text-red-700'
+                                                        className={`text-xs px-2 py-1 font-mono uppercase tracking-wider border ${task.priority === 'urgent'
+                                                                ? 'border-red-900 text-red-500'
                                                                 : task.priority === 'high'
-                                                                    ? 'bg-orange-100 text-orange-700'
-                                                                    : 'bg-gray-100 text-gray-700'
+                                                                    ? 'border-orange-900 text-orange-500'
+                                                                    : 'border-[#333333] text-gray-500'
                                                             }`}
                                                     >
                                                         {task.priority}
                                                     </span>
                                                     {task.assignee && (
-                                                        <span className="text-xs text-gray-500 flex items-center gap-1">
-                                                            Assigned to: <span className="font-medium text-gray-700">{task.assignee.full_name || task.assignee.email}</span>
+                                                        <span className="text-xs text-gray-500 flex items-center gap-1 font-mono ml-2">
+                                                            Assigned to: <span className="font-bold text-gray-300">{task.assignee.full_name || task.assignee.email}</span>
                                                         </span>
                                                     )}
                                                 </div>
                                             </div>
-                                            <div className="text-right">
-                                                <div className="flex items-center gap-1 text-gray-900 font-semibold">
+                                            <div className="text-right pl-4">
+                                                <div className="flex items-center justify-end gap-1 text-[#C9A962] font-bold font-mono">
                                                     <DollarSign className="h-4 w-4" />
                                                     {task.cost.toFixed(2)}
                                                 </div>
                                                 <span
-                                                    className={`text-xs ${task.payment_status === 'paid'
-                                                            ? 'text-emerald-600'
+                                                    className={`text-xs block mt-1 font-mono uppercase tracking-wider ${task.payment_status === 'paid'
+                                                            ? 'text-emerald-500'
                                                             : 'text-gray-500'
                                                         }`}
                                                 >
@@ -234,14 +230,14 @@ export default function ProjectDetail() {
                                     </div>
                                 ))
                             ) : (
-                                <div className="text-center py-12">
-                                    <p className="text-gray-500 mb-4">No tasks yet</p>
+                                <div className="text-center py-12 border border-dashed border-[#333333]">
+                                    <p className="text-gray-500 mb-4 font-mono text-sm">NO TASKS IN SYSTEM</p>
                                     <button 
                                         onClick={() => setCreateTaskModalOpen(true)}
-                                        className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                                        className="inline-flex items-center gap-2 px-6 py-3 border border-[#C9A962] text-[#C9A962] hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-colors font-mono uppercase text-xs tracking-wider font-bold"
                                     >
                                         <Plus className="h-4 w-4" />
-                                        Create First Task
+                                        Initialize First Task
                                     </button>
                                 </div>
                             )}

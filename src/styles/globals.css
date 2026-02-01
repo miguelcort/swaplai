@@ -1,42 +1,79 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #10b981;
-  --color-primary-hover: #059669;
-  --color-primary-light: #d1fae5;
-  --color-primary-dark: #047857;
+  --color-primary: #C9A962;
+  --color-primary-hover: #B08D45;
+  --color-primary-light: #E5D0A1;
+  --color-primary-dark: #8F7230;
 
-  --color-accent-green: #10b981;
-  --color-accent-green-light: #6ee7b7;
-  --color-accent-orange: #f59e0b;
+  --color-accent-green: #1DBF73;
+  --color-accent-green-light: #1DBF73;
+  --color-accent-orange: #C9A962;
   --color-accent-red: #ef4444;
-  --color-accent-blue: #3b82f6;
+  --color-accent-blue: #C9A962;
 
-  --color-bg-dark: #1a1a2e;
-  --color-bg-light: #f5f7fa;
-  --color-bg-card: #ffffff;
-  --color-bg-green-light: #f0fdf4;
+  --color-bg-dark: #0A0A0A;
+  --color-bg-light: #0A0A0A;
+  --color-bg-card: #0A0A0A;
+  --color-bg-green-light: #0A0A0A;
 
-  --color-text-primary: #111827;
-  --color-text-secondary: #6b7280;
-  --color-border: #e5e7eb;
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #A3A3A3;
+  --color-border: #333333;
 
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --font-sans: 'Space Grotesk', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --font-serif: 'Playfair Display', serif;
+
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-full: 9999px;
+
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
 }
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light;
+  color-scheme: dark;
   color: var(--color-text-primary);
-  background-color: var(--color-bg-light);
+  background-color: var(--color-bg-dark);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.font-mono {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.font-serif {
+  font-family: 'Playfair Display', serif;
+}
+
+/* Custom Scrollbar for Brutalist Look */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0A0A0A;
+  border-left: 1px solid #333333;
+}
+::-webkit-scrollbar-thumb {
+  background: #333333;
+  border: 1px solid #0A0A0A;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C9A962;
 }

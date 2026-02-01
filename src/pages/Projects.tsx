@@ -40,12 +40,12 @@ export default function Projects() {
     }
 
     return (
-        <div className="flex flex-col h-full bg-gray-50">
-            <div className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex flex-col h-full bg-[#0A0A0A] font-sans">
+            <div className="bg-[#0A0A0A] border-b border-[#333333] px-4 sm:px-6 lg:px-8 py-6">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-xl md:text-2xl font-bold text-gray-900">Projects</h1>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <h1 className="text-xl md:text-2xl font-bold text-white font-serif tracking-tight">Projects</h1>
+                        <p className="text-sm text-gray-400 mt-1 font-mono uppercase tracking-wider">
                             View all your projects and create tasks for each one.
                         </p>
                     </div>
@@ -58,20 +58,20 @@ export default function Projects() {
             <div className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
                 <div className="max-w-7xl mx-auto space-y-6">
                     {error && (
-                        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+                        <div className="p-3 bg-red-900/20 border border-red-900/50 rounded-none text-sm text-red-400 font-mono">
                             {error}
                         </div>
                     )}
 
                     {loading ? (
-                        <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-                            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-emerald-600 border-r-transparent"></div>
-                            <p className="mt-4 text-gray-600">Loading projects...</p>
+                        <div className="bg-[#0A0A0A] rounded-none border border-[#333333] p-12 text-center">
+                            <div className="inline-block h-8 w-8 animate-spin rounded-none border-4 border-solid border-primary border-r-transparent"></div>
+                            <p className="mt-4 text-gray-400 font-mono">Loading projects...</p>
                         </div>
                     ) : projects.length === 0 ? (
-                        <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-                            <h2 className="text-lg font-semibold text-gray-900 mb-2">No projects yet</h2>
-                            <p className="text-gray-500 mb-6">
+                        <div className="bg-[#0A0A0A] rounded-none border border-[#333333] p-12 text-center">
+                            <h2 className="text-lg font-semibold text-white mb-2 font-sans">No projects yet</h2>
+                            <p className="text-gray-500 mb-6 font-mono">
                                 Create your first project from the dashboard to start adding tasks.
                             </p>
                         </div>
@@ -80,19 +80,19 @@ export default function Projects() {
                             {projects.map((project) => (
                                 <div
                                     key={project.id}
-                                    className="bg-white rounded-lg border border-gray-200 p-5 flex flex-col justify-between"
+                                    className="bg-[#0A0A0A] rounded-none border border-[#333333] p-5 flex flex-col justify-between hover:border-primary transition-colors group relative"
                                 >
+                                    <div className="absolute top-3 right-3 text-xs font-mono text-primary opacity-50">
+                                        {(project.status || '').toUpperCase()}
+                                    </div>
                                     <div>
-                                        <h2 className="text-lg font-semibold text-gray-900">{project.name}</h2>
+                                        <h2 className="text-lg font-bold text-white font-sans uppercase tracking-wide pr-8">{project.name}</h2>
                                         {project.description && (
-                                            <p className="text-sm text-gray-600 mt-1 line-clamp-3">
+                                            <p className="text-sm text-gray-400 mt-2 line-clamp-3 font-mono">
                                                 {project.description}
                                             </p>
                                         )}
-                                        <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-gray-500">
-                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-100 text-gray-700">
-                                                Status: {project.status}
-                                            </span>
+                                        <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-gray-500 font-mono uppercase tracking-wider">
                                             <span>
                                                 Budget: ${project.budget.toFixed(2)}
                                             </span>
@@ -105,13 +105,13 @@ export default function Projects() {
                                     <div className="mt-6 flex items-center justify-between gap-3">
                                         <button
                                             onClick={() => navigate(`/projects/${project.id}`)}
-                                            className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                                            className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-[#333333] text-sm font-medium text-white rounded-none hover:bg-[#333333] transition-colors font-mono uppercase"
                                         >
                                             View details
                                         </button>
                                         <button
                                             onClick={() => handleCreateTaskClick(project)}
-                                            className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-emerald-600 text-sm font-medium text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                                            className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-primary text-sm font-medium text-black rounded-none hover:bg-primary/90 transition-colors font-mono uppercase"
                                         >
                                             Create task
                                         </button>

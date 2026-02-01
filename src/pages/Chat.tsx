@@ -62,7 +62,7 @@ export default function Chat() {
                     onNew={handleNewChat}
                 />
 
-                <div className="flex-1 flex flex-col bg-white overflow-hidden">
+                <div className="flex-1 flex flex-col bg-[#0A0A0A] overflow-hidden">
                     <div className="flex-1 overflow-hidden flex flex-col relative">
                         <MessageList messages={messages} />
                     </div>
