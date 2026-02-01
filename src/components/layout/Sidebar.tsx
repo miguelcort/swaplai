@@ -24,7 +24,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
     ]
 
     // Derived state
-    const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || "https://github.com/shadcn.png"
+    //const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || "https://github.com/shadcn.png"
     const fullName = profile?.first_name 
         ? `${profile.first_name} ${profile.last_name || ''}`.trim()
         : user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User"
