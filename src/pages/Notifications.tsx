@@ -59,10 +59,10 @@ export default function Notifications() {
     }
 
     return (
-        <div className="flex flex-col h-full bg-[#0A0A0A]">
+        <div className="flex flex-col min-h-full bg-[#0A0A0A]">
             <Header title="Notifications" />
 
-            <div className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
+            <div className="flex-1 p-4 sm:p-6 lg:p-8">
                 <div className="max-w-4xl mx-auto">
                     <div className="bg-[#0A0A0A] border border-[#333333]">
                         <div className="p-4 border-b border-[#333333] bg-[#0A0A0A] flex justify-between items-center">
@@ -84,7 +84,7 @@ export default function Notifications() {
 
                         {isLoading ? (
                             <div className="p-12 text-center border-t border-[#333333]">
-                                <div className="inline-block h-8 w-8 animate-spin border-2 border-solid border-[#C9A962] border-r-transparent"></div>
+                                <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-solid border-[#C9A962] border-r-transparent"></div>
                                 <p className="mt-4 text-gray-400 font-mono text-sm">LOADING SYSTEM...</p>
                             </div>
                         ) : notifications.length === 0 ? (

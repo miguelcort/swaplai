@@ -55,7 +55,7 @@ export default function Projects() {
                 </div>
             </div>
 
-            <div className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
+            <div className="flex-1 p-4 sm:p-6 lg:p-8">
                 <div className="max-w-7xl mx-auto space-y-6">
                     {error && (
                         <div className="p-3 bg-red-900/20 border border-red-900/50 rounded-none text-sm text-red-400 font-mono">
@@ -65,7 +65,7 @@ export default function Projects() {
 
                     {loading ? (
                         <div className="bg-[#0A0A0A] rounded-none border border-[#333333] p-12 text-center">
-                            <div className="inline-block h-8 w-8 animate-spin rounded-none border-4 border-solid border-primary border-r-transparent"></div>
+                            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
                             <p className="mt-4 text-gray-400 font-mono">Loading projects...</p>
                         </div>
                     ) : projects.length === 0 ? (

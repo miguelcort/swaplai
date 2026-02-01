@@ -16,7 +16,7 @@ export default function Dashboard() {
     })
 
     return (
-        <div className="flex flex-col h-full bg-bg-dark text-text-primary font-sans">
+        <div className="flex flex-col min-h-full bg-bg-dark text-text-primary font-sans">
             {/* Header */}
             <div className="bg-bg-dark border-b border-[#333333] px-4 sm:px-6 lg:px-8 py-6">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

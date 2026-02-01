@@ -5,18 +5,19 @@ import { MessageSquareDashed } from 'lucide-react'
 
 interface MessageListProps {
     messages: Message[]
+    isLoading?: boolean
 }
 
-export function MessageList({ messages }: MessageListProps) {
+export function MessageList({ messages, isLoading }: MessageListProps) {
     const scrollRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight
         }
-    }, [messages])
+    }, [messages, isLoading])
 
-    if (messages.length === 0) {
+    if (messages.length === 0 && !isLoading) {
         return (
             <div className="flex-1 flex items-center justify-center text-gray-400 p-8 bg-[#0A0A0A]">
                 <div className="text-center">
@@ -36,6 +37,13 @@ export function MessageList({ messages }: MessageListProps) {
                 {messages.map((msg) => (
                     <MessageBubble key={msg.id} message={msg} />
                 ))}
+                {isLoading && (
+                    <div className="flex justify-start px-4 py-2">
+                        <div className="bg-[#111] border border-[#333333] p-3 rounded-none">
+                            <div className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-[#C9A962] border-r-transparent"></div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )

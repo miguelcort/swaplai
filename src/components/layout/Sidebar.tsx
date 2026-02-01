@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { LayoutDashboard, MessageSquare, Settings, Users, LogOut, ListTree, X } from 'lucide-react'
 import { cn } from '../../lib/utils'
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/Avatar'
+import { Avatar, AvatarFallback } from '../ui/Avatar'
 import { useAuthStore } from '../../stores/authStore'
 import { useProfileStore } from '../../stores/profileStore'
 import { useEffect } from 'react'
@@ -107,7 +107,6 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
                         <div className="md:hidden flex items-center justify-between p-4">
                             <div className="flex items-center gap-3">
                                 <Avatar className="h-10 w-10 border border-[#333333] rounded-none">
-                                    <AvatarImage src={avatarUrl} />
                                     <AvatarFallback className="bg-[#111] text-[#C9A962] font-mono text-sm rounded-none font-bold">
                                         {initials}
                                     </AvatarFallback>

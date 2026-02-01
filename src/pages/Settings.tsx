@@ -121,13 +121,9 @@ export default function Settings() {
     }
 
     return (
-        <div className="flex flex-col h-full">
-            <Header
-                title="Settings"
-                searchPlaceholder="Search settings..."
-            />
-
-            <div className="flex-1 overflow-auto p-8">
+        <div className="flex flex-col min-h-full bg-[#0A0A0A] font-sans">
+            <Header title="Settings" />
+            <div className="flex-1 p-4 sm:p-6 lg:p-8">
                 <div className="max-w-6xl mx-auto">
 
             <div className="flex flex-col md:flex-row gap-8">

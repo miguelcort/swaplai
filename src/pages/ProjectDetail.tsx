@@ -45,7 +45,7 @@ export default function ProjectDetail() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-[#0A0A0A]">
-                <div className="inline-block h-8 w-8 animate-spin border-2 border-solid border-[#C9A962] border-r-transparent"></div>
+                <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-solid border-[#C9A962] border-r-transparent"></div>
             </div>
         )
     }
@@ -70,7 +70,7 @@ export default function ProjectDetail() {
         .reduce((sum, task) => sum + task.cost, 0)
 
     return (
-        <div className="min-h-screen bg-[#0A0A0A]">
+        <div className="min-h-full bg-[#0A0A0A]">
             {/* Header */}
             <div className="bg-[#0A0A0A] border-b border-[#333333]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

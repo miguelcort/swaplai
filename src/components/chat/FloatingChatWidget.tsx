@@ -21,7 +21,8 @@ export function FloatingChatWidget() {
         setActiveConversation,
         loadConversations,
         conversations,
-        startNewChat
+        startNewChat,
+        isLoading
     } = useChatStore()
 
     // Initialize chat when opening
@@ -120,7 +121,7 @@ export function FloatingChatWidget() {
 
                 {/* Messages */}
                 <div className="flex-1 overflow-hidden flex flex-col bg-[#0A0A0A] relative">
-                    <MessageList messages={messages} />
+                    <MessageList messages={messages} isLoading={isLoading} />
                 </div>
 
                 {/* Input */}

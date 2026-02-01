@@ -47,7 +47,7 @@ export default function Team() {
     }
 
     return (
-        <div className="flex flex-col h-full bg-[#0A0A0A]">
+        <div className="flex flex-col min-h-full bg-[#0A0A0A]">
             <div className="bg-[#0A0A0A] border-b border-[#333333] px-4 sm:px-6 lg:px-8 py-6">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
@@ -64,7 +64,7 @@ export default function Team() {
                 </div>
             </div>
 
-            <div className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
+            <div className="flex-1 p-4 sm:p-6 lg:p-8">
                 <div className="max-w-7xl mx-auto space-y-6">
                     {projects.length === 0 ? (
                         <div className="text-center py-12 bg-[#0A0A0A] rounded-none border border-[#333333]">
