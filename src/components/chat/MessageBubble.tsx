@@ -6,6 +6,7 @@ import { type Message } from '../../types/chat.types'
 import { Avatar, AvatarFallback } from '../ui/Avatar'
 import { Sparkles, Copy, RotateCcw, ThumbsUp, ThumbsDown, Check } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
+import { ProfileProposalCard } from './ProfileProposalCard'
 
 interface MessageBubbleProps {
     message: Message
@@ -14,14 +15,31 @@ interface MessageBubbleProps {
 export function MessageBubble({ message }: MessageBubbleProps) {
     const isUser = message.role === 'user'
     const [copied, setCopied] = useState(false)
+    const [showProposal, setShowProposal] = useState(true)
     const { user } = useAuthStore()
+    
+    // Check for Proposal Pattern
+    const proposalRegex = /<<<PROPOSAL:\s*({[\s\S]*?})\s*>>>/
+    const match = !isUser && message.content.match(proposalRegex)
+    
+    let displayContent = message.content
+    let proposalData = null
+
+    if (match) {
+        try {
+            proposalData = JSON.parse(match[1])
+            displayContent = message.content.replace(match[0], '').trim()
+        } catch (e) {
+            console.error('Failed to parse proposal JSON', e)
+        }
+    }
     
     const initials = user?.user_metadata?.full_name?.substring(0, 2).toUpperCase() || 
                      user?.email?.substring(0, 2).toUpperCase() || "U"
 
     const handleCopy = async () => {
         try {
-            await navigator.clipboard.writeText(message.content)
+            await navigator.clipboard.writeText(displayContent)
             setCopied(true)
             setTimeout(() => setCopied(false), 2000)
         } catch (err) {
@@ -71,9 +89,17 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                     <ReactMarkdown 
                         remarkPlugins={[remarkGfm]}
                     >
-                        {message.content}
+                        {displayContent}
                     </ReactMarkdown>
                 </div>
+
+                {/* Profile Proposal Card */}
+                {proposalData && showProposal && (
+                    <ProfileProposalCard 
+                        data={proposalData} 
+                        onDismiss={() => setShowProposal(false)} 
+                    />
+                )}
 
                 {/* Bot Actions */}
                 <div className="flex items-center gap-2 mt-2 pt-1 opacity-0 group-hover:opacity-100 transition-opacity">

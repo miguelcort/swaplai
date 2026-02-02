@@ -156,6 +156,16 @@ export const projectsApi = {
         if (error) throw error
     },
 
+    // Update member role
+    async updateMemberRole(memberId: string, role: 'admin' | 'member'): Promise<void> {
+        const { error } = await supabase
+            .from('project_members')
+            .update({ role })
+            .eq('id', memberId)
+
+        if (error) throw error
+    },
+
     // Get project members
     async getProjectMembers(projectId: string): Promise<ProjectMember[]> {
         const { data, error } = await supabase

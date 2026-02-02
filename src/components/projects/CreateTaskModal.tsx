@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Modal } from '../ui/Modal'
 import { tasksApi } from '../../lib/projectsApi'
 import { Calendar, DollarSign, User, Flag } from 'lucide-react'
-import type { CreateTaskInput, ProjectMember, TaskPriority } from '../../types/projects'
+import type { CreateTaskInput, ProjectMember, TaskPriority, Task } from '../../types/projects'
 
 interface CreateTaskModalProps {
     isOpen: boolean
@@ -10,9 +10,10 @@ interface CreateTaskModalProps {
     projectId: string
     members: ProjectMember[]
     onSuccess: () => void
+    taskToEdit?: Task | null
 }
 
-export function CreateTaskModal({ isOpen, onClose, projectId, members, onSuccess }: CreateTaskModalProps) {
+export function CreateTaskModal({ isOpen, onClose, projectId, members, onSuccess, taskToEdit }: CreateTaskModalProps) {
     const [formData, setFormData] = useState<CreateTaskInput>({
         title: '',
         description: '',
@@ -24,13 +25,17 @@ export function CreateTaskModal({ isOpen, onClose, projectId, members, onSuccess
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setLoading(true)
-        setError(null)
-
-        try {
-            await tasksApi.createTask(projectId, formData)
+    useEffect(() => {
+        if (taskToEdit) {
+            setFormData({
+                title: taskToEdit.title,
+                description: taskToEdit.description || '',
+                priority: taskToEdit.priority,
+                cost: taskToEdit.cost,
+                assigned_to: taskToEdit.assigned_to || '',
+                due_date: taskToEdit.due_date ? taskToEdit.due_date.split('T')[0] : ''
+            })
+        } else {
             setFormData({
                 title: '',
                 description: '',
@@ -39,17 +44,42 @@ export function CreateTaskModal({ isOpen, onClose, projectId, members, onSuccess
                 assigned_to: '',
                 due_date: ''
             })
+        }
+    }, [taskToEdit, isOpen])
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setLoading(true)
+        setError(null)
+
+        try {
+            if (taskToEdit) {
+                await tasksApi.updateTask(taskToEdit.id, formData)
+            } else {
+                await tasksApi.createTask(projectId, formData)
+            }
+            
+            if (!taskToEdit) {
+                setFormData({
+                    title: '',
+                    description: '',
+                    priority: 'medium',
+                    cost: 0,
+                    assigned_to: '',
+                    due_date: ''
+                })
+            }
             onSuccess()
             onClose()
         } catch (err: any) {
-            setError(err.message || 'Failed to create task')
+            setError(err.message || `Failed to ${taskToEdit ? 'update' : 'create'} task`)
         } finally {
             setLoading(false)
         }
     }
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Create New Task">
+        <Modal isOpen={isOpen} onClose={onClose} title={taskToEdit ? "Edit Task" : "Create New Task"}>
             <form onSubmit={handleSubmit} className="space-y-6">
                 {error && (
                     <div className="p-3 bg-[#0A0A0A] border border-red-900 text-sm text-red-500 font-mono">
@@ -101,7 +131,7 @@ export function CreateTaskModal({ isOpen, onClose, projectId, members, onSuccess
                             id="priority"
                             value={formData.priority}
                             onChange={(e) => setFormData({ ...formData, priority: e.target.value as TaskPriority })}
-                            className="w-full px-4 py-3 bg-[#0A0A0A] border border-[#333333] text-white focus:outline-none focus:border-[#C9A962] transition-colors font-mono appearance-none"
+                            className="w-full px-4 py-3 bg-[#0A0A0A] border border-[#333333] text-white focus:outline-none focus:border-[#C9A962] transition-colors font-mono"
                         >
                             <option value="low">Low</option>
                             <option value="medium">Medium</option>
@@ -115,7 +145,7 @@ export function CreateTaskModal({ isOpen, onClose, projectId, members, onSuccess
                         <label htmlFor="cost" className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider font-mono">
                             <div className="flex items-center gap-1">
                                 <DollarSign className="h-3 w-3" />
-                                Cost (Credits)
+                                Cost ($)
                             </div>
                         </label>
                         <input
@@ -126,29 +156,30 @@ export function CreateTaskModal({ isOpen, onClose, projectId, members, onSuccess
                             value={formData.cost}
                             onChange={(e) => setFormData({ ...formData, cost: parseFloat(e.target.value) || 0 })}
                             className="w-full px-4 py-3 bg-[#0A0A0A] border border-[#333333] text-white focus:outline-none focus:border-[#C9A962] transition-colors font-mono"
+                            placeholder="0.00"
                         />
                     </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                    {/* Assigned To */}
+                    {/* Assignee */}
                     <div>
                         <label htmlFor="assigned_to" className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider font-mono">
                             <div className="flex items-center gap-1">
                                 <User className="h-3 w-3" />
-                                Assign To
+                                Assignee
                             </div>
                         </label>
                         <select
                             id="assigned_to"
                             value={formData.assigned_to || ''}
-                            onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value })}
-                            className="w-full px-4 py-3 bg-[#0A0A0A] border border-[#333333] text-white focus:outline-none focus:border-[#C9A962] transition-colors font-mono appearance-none"
+                            onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value || undefined })}
+                            className="w-full px-4 py-3 bg-[#0A0A0A] border border-[#333333] text-white focus:outline-none focus:border-[#C9A962] transition-colors font-mono"
                         >
                             <option value="">Unassigned</option>
                             {members.map((member) => (
-                                <option key={member.user_id} value={member.user_id}>
-                                    {member.profiles?.full_name || member.profiles?.email || member.user_id.substring(0, 8)}
+                                <option key={member.id} value={member.user_id}>
+                                    {member.profiles?.full_name || member.profiles?.email || 'Unknown User'}
                                 </option>
                             ))}
                         </select>
@@ -173,21 +204,20 @@ export function CreateTaskModal({ isOpen, onClose, projectId, members, onSuccess
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-4 pt-6">
+                <div className="flex gap-3 pt-6 border-t border-[#333333]">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="flex-1 px-4 py-3 border border-[#333333] text-gray-400 hover:text-white hover:border-white transition-colors font-mono uppercase text-xs tracking-wider font-bold"
-                        disabled={loading}
+                        className="flex-1 px-4 py-3 border border-[#333333] text-white hover:bg-[#333333] transition-colors font-mono uppercase text-xs tracking-wider font-bold"
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
-                        className="flex-1 px-4 py-3 bg-[#C9A962] text-[#0A0A0A] hover:bg-[#b09355] transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-mono uppercase text-xs tracking-wider font-bold"
                         disabled={loading}
+                        className="flex-1 px-4 py-3 bg-[#C9A962] text-[#0A0A0A] hover:bg-[#b09355] transition-colors font-mono uppercase text-xs tracking-wider font-bold disabled:opacity-50"
                     >
-                        {loading ? 'Creating...' : 'Create Task'}
+                        {loading ? (taskToEdit ? 'UPDATING...' : 'CREATING...') : (taskToEdit ? 'UPDATE TASK' : 'CREATE TASK')}
                     </button>
                 </div>
             </form>

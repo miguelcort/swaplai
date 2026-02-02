@@ -54,7 +54,7 @@ export function OverviewChart() {
                 </div>
             </div>
 
-            <div className="overflow-x-auto pb-2">
+            <div className="overflow-x-auto pb-2 w-full touch-pan-x">
                 <div className="flex items-end justify-between gap-2 h-64 min-w-[600px]">
                     {data.map((item, index) => {
                     const heightPercentage = (item.earnings / maxEarnings) * 100

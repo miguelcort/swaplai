@@ -61,7 +61,7 @@ export function FloatingChatWidget() {
     }
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4 pointer-events-none">
             {/* Chat Window */}
             <div 
                 className={cn(
@@ -134,7 +134,7 @@ export function FloatingChatWidget() {
             <button
                 onClick={toggleOpen}
                 className={cn(
-                    "h-14 w-14 rounded-none shadow-none hover:shadow-none border border-[#333333]",
+                    "h-14 w-14 rounded-none shadow-none hover:shadow-none border border-[#333333] pointer-events-auto",
                     "flex items-center justify-center transition-all duration-300 transform hover:translate-y-[-2px]",
                     "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ring-offset-black",
                     isOpen 

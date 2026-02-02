@@ -11,6 +11,8 @@ export default function Register() {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [formData, setFormData] = useState({
+        firstName: '',
+        lastName: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -31,13 +33,21 @@ export default function Register() {
             const { error } = await supabase.auth.signUp({
                 email: formData.email,
                 password: formData.password,
+                options: {
+                    data: {
+                        first_name: formData.firstName,
+                        last_name: formData.lastName,
+                        full_name: `${formData.firstName} ${formData.lastName}`.trim()
+                    }
+                }
             })
 
             if (error) throw error
             // Assuming auto-login or redirect to login
             navigate('/')
         } catch (err: any) {
-            setError(err.message || 'An error occurred during registration')
+            console.error('Registration error:', err)
+            setError(err.message || 'An error occurred during registration. Please try again.')
         } finally {
             setLoading(false)
         }
@@ -58,6 +68,24 @@ export default function Register() {
                                 {error}
                             </div>
                         )}
+                        <div className="grid grid-cols-2 gap-4">
+                            <Input
+                                label="First Name"
+                                type="text"
+                                placeholder="John"
+                                required
+                                value={formData.firstName}
+                                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                            />
+                            <Input
+                                label="Last Name"
+                                type="text"
+                                placeholder="Doe"
+                                required
+                                value={formData.lastName}
+                                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                            />
+                        </div>
                         <Input
                             label="Email"
                             type="email"

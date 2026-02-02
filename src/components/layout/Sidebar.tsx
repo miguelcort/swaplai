@@ -1,5 +1,5 @@
-import { Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, MessageSquare, Settings, Users, LogOut, ListTree, X } from 'lucide-react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { LayoutDashboard, MessageSquare, Settings, LogOut, ListTree, X } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { Avatar, AvatarFallback } from '../ui/Avatar'
 import { useAuthStore } from '../../stores/authStore'
@@ -8,6 +8,7 @@ import { useEffect } from 'react'
 
 export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () => void }) {
     const location = useLocation()
+    const navigate = useNavigate()
     const { user, signOut, credits } = useAuthStore()
     const { profile, fetchProfile } = useProfileStore()
 
@@ -19,7 +20,6 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
         { icon: LayoutDashboard, label: 'Dashboard', href: '/', id: 'dashboard' },
         { icon: ListTree, label: 'Projects', href: '/projects', id: 'projects' },
         { icon: MessageSquare, label: 'Conversations', href: '/chat', id: 'conversations' },
-        { icon: Users, label: 'Team', href: '/team', id: 'team' },
         { icon: Settings, label: 'Settings', href: '/settings', id: 'settings' },
     ]
 
@@ -76,12 +76,14 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
                     {navItems.map((item) => {
                         const active = isActive(item.href)
                         return (
-                            <Link
+                            <div
                                 key={item.id}
-                                to={item.href}
-                                onClick={onClose}
+                                onClick={() => {
+                                    navigate(item.href)
+                                    onClose?.()
+                                }}
                                 className={cn(
-                                    "flex items-center gap-3 px-4 py-4 transition-all group relative rounded-none",
+                                    "flex items-center gap-3 px-4 py-4 transition-all group relative rounded-none cursor-pointer",
                                     "md:h-16 md:w-full md:justify-center md:px-0",
                                     active
                                         ? "bg-[#111] text-[#C9A962] border-l-2 border-[#C9A962]"
@@ -95,7 +97,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
                                 <span className="hidden md:block absolute left-full ml-0 px-3 py-2 bg-[#0A0A0A] text-[#C9A962] text-xs font-mono uppercase tracking-wider border border-[#333333] opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
                                     {item.label}
                                 </span>
-                            </Link>
+                            </div>
                         )
                     })}
                 </nav>
@@ -104,8 +106,15 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
                 <div className="border-t border-[#333333] p-0">
                     <div className="relative group">
                         {/* Mobile: Avatar + Name + Logout */}
-                        <div className="md:hidden flex items-center justify-between p-4">
-                            <div className="flex items-center gap-3">
+                        <div className="md:hidden p-4 space-y-4">
+                            {/* Profile Info - Clickable to go to settings */}
+                            <div 
+                                onClick={() => {
+                                    navigate('/settings')
+                                    onClose?.()
+                                }}
+                                className="flex items-center gap-3 cursor-pointer"
+                            >
                                 <Avatar className="h-10 w-10 border border-[#333333] rounded-none">
                                     <AvatarFallback className="bg-[#111] text-[#C9A962] font-mono text-sm rounded-none font-bold">
                                         {initials}
@@ -123,14 +132,17 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
                                     </div>
                                 </div>
                             </div>
+                            
+                            {/* Logout Button - Full width, clear text */}
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     signOut()
                                 }}
-                                className="p-2 text-gray-500 hover:text-white transition-colors"
+                                className="w-full flex items-center justify-center gap-2 p-2 bg-[#111] hover:bg-[#222] text-gray-400 hover:text-white transition-colors border border-[#333333]"
                             >
-                                <LogOut className="h-5 w-5" />
+                                <LogOut className="h-4 w-4" />
+                                <span className="text-xs font-mono uppercase tracking-wider font-bold">Logout</span>
                             </button>
                         </div>
 

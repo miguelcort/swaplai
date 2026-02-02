@@ -6,7 +6,6 @@ import Chat from './pages/Chat'
 import Notifications from './pages/Notifications'
 import Settings from './pages/Settings'
 import ProjectDetail from './pages/ProjectDetail'
-import Team from './pages/Team'
 import Projects from './pages/Projects'
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
@@ -34,7 +33,6 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="projects" element={<Projects />} />
             <Route path="projects/:id" element={<ProjectDetail />} />
-            <Route path="team" element={<Team />} />
             <Route path="chat" element={<Chat />} />
             <Route path="chat/:id" element={<Chat />} />
             <Route path="notifications" element={<Notifications />} />

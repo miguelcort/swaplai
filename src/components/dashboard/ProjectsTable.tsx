@@ -115,7 +115,7 @@ export function ProjectsTable() {
 
                 {/* Table */}
                 {projects.length > 0 ? (
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto w-full touch-pan-x">
                         <table className="w-full">
                             <thead className="bg-primary border-b border-[#333333]">
                                 <tr>
