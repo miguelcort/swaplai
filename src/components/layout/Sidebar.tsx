@@ -51,7 +51,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
 
             {/* Sidebar */}
             <aside className={cn(
-                "fixed md:relative h-screen w-64 md:w-20 flex flex-col border-r border-[#333333] bg-[#0A0A0A] z-40 transition-transform duration-300",
+                "fixed md:sticky md:top-0 h-screen w-64 md:w-20 flex flex-col border-r border-[#333333] bg-[#0A0A0A] z-50 transition-transform duration-300",
                 isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
             )}>
                 {/* Logo */}
@@ -124,7 +124,10 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
                                 </div>
                             </div>
                             <button
-                                onClick={signOut}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    signOut()
+                                }}
                                 className="p-2 text-gray-500 hover:text-white transition-colors"
                             >
                                 <LogOut className="h-5 w-5" />

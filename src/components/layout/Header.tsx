@@ -2,6 +2,7 @@ import { Search, Plus } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { NotificationBell } from './NotificationBell'
 import { Avatar, AvatarFallback } from '../ui/Avatar'
+import { useNavigate } from 'react-router-dom'
 
 interface HeaderProps {
     title?: string
@@ -17,6 +18,7 @@ export function Header({
     searchPlaceholder = "Search"
 }: HeaderProps) {
     const { user } = useAuthStore()
+    const navigate = useNavigate()
 
     const initials = user?.user_metadata?.full_name?.substring(0, 2).toUpperCase() ||
                      user?.email?.substring(0, 2).toUpperCase() || "U"
@@ -68,7 +70,7 @@ export function Header({
                     )}
 
                     {/* Avatar */}
-                    <Avatar className="h-8 w-8 cursor-pointer hover:border-primary transition-colors border border-[#333333] rounded-none" onClick={() => window.location.href = '/settings'}>
+                    <Avatar className="h-8 w-8 cursor-pointer hover:border-primary transition-colors border border-[#333333] rounded-none" onClick={() => navigate('/settings')}>
                         <AvatarFallback className="bg-black text-white font-bold text-xs rounded-none font-mono">
                             {initials}
                         </AvatarFallback>

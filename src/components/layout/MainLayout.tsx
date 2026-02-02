@@ -21,7 +21,7 @@ export function MainLayout() {
     })
 
     return (
-        <div className="flex h-screen bg-bg-dark overflow-hidden font-sans">
+        <div className="flex min-h-screen bg-bg-dark font-sans">
             <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
             <div className="flex flex-col flex-1 min-w-0 relative">
                 {/* Mobile Header */}
@@ -36,7 +36,7 @@ export function MainLayout() {
                         <span className="text-lg font-bold text-white tracking-wide">Swaplai</span>
                     </div>
                 </div>
-                <main className="flex-1 overflow-y-auto scroll-smooth">
+                <main className="flex-1">
                     <Outlet />
                 </main>
                 <FloatingChatWidget />
