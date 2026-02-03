@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, UserPlus, Plus, Trash2, Edit2, Users, LayoutList, X } from 'lucide-react'
+import { ArrowLeft, UserPlus, Plus, Trash2, Edit2, Users, LayoutList, X, Sparkles, ArrowLeftRight } from 'lucide-react'
 import type { Project, Task, ProjectMember } from '../types/projects'
 import { projectsApi, tasksApi } from '../lib/projectsApi'
 import { InviteTeamModal } from '../components/projects/InviteTeamModal'
 import { CreateTaskModal } from '../components/projects/CreateTaskModal'
 import { CreateProjectModal } from '../components/projects/CreateProjectModal'
+import { SwapTaskModal } from '../components/projects/SwapTaskModal'
 import { Modal } from '../components/ui/Modal'
 import { useAuthStore } from '../stores/authStore'
 
@@ -32,6 +33,52 @@ export default function ProjectDetail() {
     const [memberToRemove, setMemberToRemove] = useState<string | null>(null)
     const [memberToEdit, setMemberToEdit] = useState<ProjectMember | null>(null)
     const [newRole, setNewRole] = useState<'admin' | 'member'>('member')
+
+    // Swap/Support state
+    const [swapModalOpen, setSwapModalOpen] = useState(false)
+    const [taskToSwap, setTaskToSwap] = useState<Task | null>(null)
+
+    // AI Generation state
+    const [isGeneratingTasks, setIsGeneratingTasks] = useState(false)
+    const [generatedTasks, setGeneratedTasks] = useState<any[]>([])
+    const [showGeneratedTasksModal, setShowGeneratedTasksModal] = useState(false)
+    const [selectedGeneratedTaskIndices, setSelectedGeneratedTaskIndices] = useState<Set<number>>(new Set())
+
+    const handleGenerateTasks = async () => {
+        if (!project) return
+        setIsGeneratingTasks(true)
+        try {
+            const tasks = await projectsApi.generateTasks(project.id)
+            setGeneratedTasks(tasks)
+            setSelectedGeneratedTaskIndices(new Set(tasks.map((_, i) => i)))
+            setShowGeneratedTasksModal(true)
+        } catch (error) {
+            console.error('Failed to generate tasks:', error)
+        } finally {
+            setIsGeneratingTasks(false)
+        }
+    }
+
+    const handleAddGeneratedTasks = async () => {
+        if (!project) return
+        try {
+            const tasksToAdd = generatedTasks.filter((_, i) => selectedGeneratedTaskIndices.has(i))
+            
+            await Promise.all(tasksToAdd.map(task => tasksApi.createTask(project.id, {
+                title: task.title,
+                description: task.description,
+                priority: task.priority || 'medium',
+                cost: task.cost || 0,
+                assigned_to: project.owner_id
+            })))
+            
+            await loadTasks()
+            setShowGeneratedTasksModal(false)
+            setGeneratedTasks([])
+        } catch (error) {
+             console.error('Failed to add tasks:', error)
+        }
+    }
 
     const isOwner = project?.owner_id === user?.id
 
@@ -112,8 +159,17 @@ export default function ProjectDetail() {
             console.error('Failed to update member role:', error)
         }
     }
+
+    const handleAssignTask = async (taskId: string, memberId: string) => {
+        try {
+            await tasksApi.updateTask(taskId, { assigned_to: memberId })
+            loadTasks()
+        } catch (error) {
+            console.error('Failed to assign task:', error)
+        }
+    }
     
-    // We can reuse CreateProjectModal for editing if we tweak it, but for now let's just use it as is or handle logic? 
+    // We can reuse CreateProjectModal for editing if we tweak it, but for now let's just use it as is or handle logic?  
     // Actually, CreateProjectModal expects CreateProjectInput and calls createProject. 
     // We should probably create a separate EditProjectModal or make CreateProjectModal adaptable.
     // For simplicity in this turn, I will assume we can't easily reuse it without modification.
@@ -202,13 +258,23 @@ export default function ProjectDetail() {
                         )}
                         
                         {activeTab === 'tasks' && (
-                            <button 
-                                onClick={() => setCreateTaskModalOpen(true)}
-                                className="flex items-center gap-2 px-6 py-3 bg-[#C9A962] text-[#0A0A0A] hover:bg-[#b09355] transition-colors font-mono uppercase text-xs tracking-wider font-bold"
-                            >
-                                <Plus className="h-4 w-4" />
-                                Add Task
-                            </button>
+                            <div className="flex gap-3">
+                                <button 
+                                    onClick={handleGenerateTasks}
+                                    disabled={isGeneratingTasks}
+                                    className="flex items-center gap-2 px-6 py-3 bg-[#1A1A1A] border border-[#333333] text-[#C9A962] hover:bg-[#252525] transition-colors font-mono uppercase text-xs tracking-wider font-bold disabled:opacity-50"
+                                >
+                                    <Sparkles className="h-4 w-4" />
+                                    {isGeneratingTasks ? 'Thinking...' : 'AI Suggest'}
+                                </button>
+                                <button 
+                                    onClick={() => setCreateTaskModalOpen(true)}
+                                    className="flex items-center gap-2 px-6 py-3 bg-[#C9A962] text-[#0A0A0A] hover:bg-[#b09355] transition-colors font-mono uppercase text-xs tracking-wider font-bold"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    Add Task
+                                </button>
+                            </div>
                         )}
                     </div>
 
@@ -346,6 +412,17 @@ export default function ProjectDetail() {
                                                 </td>
                                                 <td className="py-4 px-6 text-right">
                                                     <div className="flex items-center justify-end gap-1">
+                                                        <button 
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                setTaskToSwap(task)
+                                                                setSwapModalOpen(true)
+                                                            }}
+                                                            className="p-2 text-gray-400 hover:text-[#C9A962] hover:bg-[#333333] rounded transition-colors"
+                                                            title="Swap / Delegate Task"
+                                                        >
+                                                            <ArrowLeftRight className="h-4 w-4" />
+                                                        </button>
                                                         <button 
                                                             onClick={(e) => {
                                                                 e.stopPropagation()
@@ -574,6 +651,74 @@ export default function ProjectDetail() {
                 />
             )}
 
+            {/* AI Generated Tasks Modal */}
+            <Modal
+                isOpen={showGeneratedTasksModal}
+                onClose={() => setShowGeneratedTasksModal(false)}
+                title="AI Suggested Tasks"
+            >
+                <div className="space-y-4">
+                    <p className="text-gray-400 font-mono text-sm">Select tasks to add to your project:</p>
+                    <div className="max-h-[60vh] overflow-y-auto space-y-3 pr-2 custom-scrollbar">
+                        {generatedTasks.map((task, idx) => (
+                            <div 
+                                key={idx} 
+                                className={`p-4 border transition-colors cursor-pointer ${
+                                    selectedGeneratedTaskIndices.has(idx) 
+                                    ? 'bg-[#1A1A1A] border-[#C9A962]' 
+                                    : 'bg-[#0A0A0A] border-[#333333] hover:border-gray-600'
+                                }`}
+                                onClick={() => {
+                                    const newSet = new Set(selectedGeneratedTaskIndices)
+                                    if (newSet.has(idx)) newSet.delete(idx)
+                                    else newSet.add(idx)
+                                    setSelectedGeneratedTaskIndices(newSet)
+                                }}
+                            >
+                                <div className="flex gap-3">
+                                    <div className={`mt-1 w-4 h-4 border flex items-center justify-center transition-colors ${
+                                        selectedGeneratedTaskIndices.has(idx)
+                                        ? 'bg-[#C9A962] border-[#C9A962]'
+                                        : 'border-gray-600'
+                                    }`}>
+                                        {selectedGeneratedTaskIndices.has(idx) && (
+                                            <div className="w-2 h-2 bg-[#0A0A0A]" />
+                                        )}
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex justify-between items-start">
+                                            <h4 className={`font-bold font-sans text-sm ${
+                                                selectedGeneratedTaskIndices.has(idx) ? 'text-[#C9A962]' : 'text-white'
+                                            }`}>{task.title}</h4>
+                                            <span className="text-xs font-mono text-gray-500 uppercase">${task.cost}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-400 mt-1 font-mono">{task.description}</p>
+                                        <div className="mt-2 inline-block px-2 py-0.5 bg-[#333333] text-gray-300 text-[10px] font-mono uppercase tracking-wider rounded">
+                                            {task.priority}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="flex justify-end gap-3 pt-4 border-t border-[#333333]">
+                        <button
+                            onClick={() => setShowGeneratedTasksModal(false)}
+                            className="px-4 py-2 text-gray-400 hover:text-white font-mono text-xs uppercase tracking-wider font-bold transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleAddGeneratedTasks}
+                            disabled={selectedGeneratedTaskIndices.size === 0}
+                            className="px-6 py-2 bg-[#C9A962] text-[#0A0A0A] hover:bg-[#b09355] font-mono text-xs uppercase tracking-wider font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Add Selected ({selectedGeneratedTaskIndices.size})
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+
             {id && project && (
                 <CreateTaskModal
                     isOpen={createTaskModalOpen}
@@ -695,6 +840,17 @@ export default function ProjectDetail() {
                     </div>
                 </div>
             </Modal>
+
+            <SwapTaskModal 
+                isOpen={swapModalOpen}
+                onClose={() => {
+                    setSwapModalOpen(false)
+                    setTaskToSwap(null)
+                }}
+                task={taskToSwap}
+                members={activeMembers}
+                onAssign={handleAssignTask}
+            />
         </div>
     )
 }

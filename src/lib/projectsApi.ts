@@ -120,6 +120,46 @@ export const projectsApi = {
         }
     },
 
+    // Generate tasks using AI
+    async generateTasks(projectId: string): Promise<any[]> {
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+        
+        const response = await fetch(`${API_URL}/projects/${projectId}/generate-tasks`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}))
+            throw new Error(errorData.detail || 'Failed to generate tasks')
+        }
+
+        const data = await response.json()
+        return data.tasks
+    },
+
+    // Get task advice
+    async getTaskAdvice(title: string, description: string): Promise<string> {
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+        
+        const response = await fetch(`${API_URL}/projects/task-advice`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ title, description })
+        })
+
+        if (!response.ok) {
+            throw new Error('Failed to get task advice')
+        }
+
+        const data = await response.json()
+        return data.advice
+    },
+
     // Accept invitation
     async acceptInvitation(memberId: string): Promise<void> {
         const { error } = await supabase

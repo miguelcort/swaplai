@@ -8,9 +8,10 @@ interface CreateProjectModalProps {
     onClose: () => void
     onSuccess: () => void
     projectToEdit?: Project | null
+    initialData?: Partial<CreateProjectInput> | null
 }
 
-export function CreateProjectModal({ isOpen, onClose, onSuccess, projectToEdit }: CreateProjectModalProps) {
+export function CreateProjectModal({ isOpen, onClose, onSuccess, projectToEdit, initialData }: CreateProjectModalProps) {
     const [formData, setFormData] = useState<CreateProjectInput>({
         name: '',
         description: '',
@@ -26,6 +27,12 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess, projectToEdit }
                 description: projectToEdit.description || '',
                 budget: projectToEdit.budget
             })
+        } else if (initialData) {
+            setFormData({
+                name: initialData.name || '',
+                description: initialData.description || '',
+                budget: initialData.budget || 0
+            })
         } else {
             setFormData({
                 name: '',
@@ -33,7 +40,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess, projectToEdit }
                 budget: 0
             })
         }
-    }, [projectToEdit, isOpen])
+    }, [projectToEdit, initialData, isOpen])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
