@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, UserPlus, Plus, Trash2, Edit2, Users, LayoutList, X, Sparkles, ArrowLeftRight, CheckCircle, Check } from 'lucide-react'
+import { ArrowLeft, UserPlus, Plus, Trash2, Edit2, Users, LayoutList, X, Sparkles, ArrowLeftRight, CheckCircle, Check, Calendar, Target, TrendingUp, AlertCircle } from 'lucide-react'
 import type { Project, Task, ProjectMember } from '../types/projects'
 import { projectsApi, tasksApi } from '../lib/projectsApi'
 import { InviteTeamModal } from '../components/projects/InviteTeamModal'
 import { CreateTaskModal } from '../components/projects/CreateTaskModal'
 import { SwapTaskModal } from '../components/projects/SwapTaskModal'
+import { TaskApplicationsModal } from '../components/projects/TaskApplicationsModal'
 import { Modal } from '../components/ui/Modal'
 import { useAuthStore } from '../stores/authStore'
 import { toast } from '../hooks/useToast'
@@ -37,6 +38,10 @@ export default function ProjectDetail() {
     // Swap/Support state
     const [swapModalOpen, setSwapModalOpen] = useState(false)
     const [taskToSwap, setTaskToSwap] = useState<Task | null>(null)
+    
+    // Community Applications state
+    const [applicationsModalOpen, setApplicationsModalOpen] = useState(false)
+    const [taskForApplications, setTaskForApplications] = useState<Task | null>(null)
 
     // AI Generation state
     const [isGeneratingTasks, setIsGeneratingTasks] = useState(false)
@@ -164,23 +169,24 @@ export default function ProjectDetail() {
     const handleCompleteProject = async () => {
         if (!project) return
         try {
-            // 1. Update project status (cast to any if type restriction exists, or assume API handles it)
-            // @ts-ignore
-            await projectsApi.updateProject(project.id, { status: 'Completed' })
+            // Atomic completion and reward
+            const result = await projectsApi.completeProject(project.id)
             
-            // 2. Trigger reward
-            const reward = await projectsApi.rewardProjectCompletion()
-            if (reward.success) {
+            if (result.success) {
                 toast({
                     title: "Project Completed!",
-                    description: `You earned ${reward.added} credits!`,
+                    description: result.message || `You earned ${result.added || 5} credits!`,
                     type: "success"
                 })
             } else {
-                 toast({ title: "Project Completed", description: "Status updated", type: "success" })
+                 toast({ 
+                     title: "Project Completed", 
+                     description: result.message || "Status updated", 
+                     type: result.message?.includes('already') ? "info" : "error" 
+                })
             }
             
-            // 3. Reload
+            // Reload
             loadProject()
         } catch (error) {
             console.error('Failed to complete project:', error)
@@ -382,6 +388,207 @@ export default function ProjectDetail() {
                         </div>
                     </div>
                     
+                    {/* 12 Week Year Dashboard */}
+                    <div className="mt-8 border-t border-border pt-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            {/* Left Column: Timeline & Scorecard */}
+                            <div className="lg:col-span-2 space-y-6">
+                                {/* 12-Week Timeline */}
+                                <div className="bg-bg-card border border-border p-6">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="text-lg font-bold font-sans uppercase flex items-center gap-2">
+                                            <Calendar className="h-5 w-5 text-primary" />
+                                            12-Week Timeline
+                                        </h3>
+                                        <span className="text-sm font-mono text-primary font-bold">
+                                            Week {(() => {
+                                                const start = new Date(project.created_at);
+                                                const now = new Date();
+                                                const diff = Math.abs(now.getTime() - start.getTime());
+                                                const week = Math.ceil(diff / (1000 * 60 * 60 * 24 * 7));
+                                                return Math.min(week, 12);
+                                            })()} of 12
+                                        </span>
+                                    </div>
+                                    <div className="grid grid-cols-12 gap-1">
+                                        {Array.from({ length: 12 }).map((_, i) => {
+                                            const currentWeek = (() => {
+                                                const start = new Date(project.created_at);
+                                                const now = new Date();
+                                                const diff = Math.abs(now.getTime() - start.getTime());
+                                                return Math.ceil(diff / (1000 * 60 * 60 * 24 * 7));
+                                            })();
+                                            
+                                            const weekNum = i + 1;
+                                            const isPast = weekNum < currentWeek;
+                                            const isCurrent = weekNum === currentWeek;
+                                            
+                                            return (
+                                                <div 
+                                                    key={i}
+                                                    className={`
+                                                        h-12 border flex items-center justify-center text-xs font-mono font-bold
+                                                        ${isCurrent ? 'border-primary bg-primary/10 text-primary animate-pulse' : 
+                                                          isPast ? 'border-primary/20 bg-primary/5 text-primary/50' : 
+                                                          'border-border bg-bg-dark text-text-secondary'}
+                                                    `}
+                                                >
+                                                    {weekNum}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="flex justify-between mt-2 text-xs font-mono text-text-secondary">
+                                        <span>Start</span>
+                                        <span>Finish</span>
+                                    </div>
+                                </div>
+
+                                {/* Tactics of the Week */}
+                                <div className="bg-bg-card border border-border p-6">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="text-lg font-bold font-sans uppercase flex items-center gap-2">
+                                            <Target className="h-5 w-5 text-primary" />
+                                            Tactics of the Week
+                                        </h3>
+                                        <span className="text-xs font-mono uppercase tracking-wider text-text-secondary">
+                                            Focus on execution
+                                        </span>
+                                    </div>
+                                    <div className="space-y-3">
+                                        {tasks.filter(t => {
+                                            if (!t.due_date) return false;
+                                            const due = new Date(t.due_date);
+                                            const now = new Date();
+                                            const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+                                            const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
+                                            return due >= startOfWeek && due <= endOfWeek && t.status !== 'completed';
+                                        }).length > 0 ? (
+                                            tasks.filter(t => {
+                                                if (!t.due_date) return false;
+                                                const due = new Date(t.due_date);
+                                                const now = new Date();
+                                                const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+                                                const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
+                                                return due >= startOfWeek && due <= endOfWeek && t.status !== 'completed';
+                                            }).slice(0, 5).map(task => (
+                                                <div key={task.id} className="flex items-center gap-3 p-3 bg-bg-dark border border-border hover:border-primary/50 transition-colors group cursor-pointer" onClick={() => openEditTaskModal(task)}>
+                                                    <div className={`h-4 w-4 rounded-sm border flex items-center justify-center ${task.priority === 'urgent' ? 'border-accent-red' : 'border-primary'}`}>
+                                                        <div className={`h-2 w-2 ${task.priority === 'urgent' ? 'bg-accent-red' : 'bg-primary'} opacity-0 group-hover:opacity-100 transition-opacity`} />
+                                                    </div>
+                                                    <span className="text-sm font-medium text-text-primary line-clamp-1 flex-1">{task.title}</span>
+                                                    <span className="text-xs font-mono text-text-secondary">{new Date(task.due_date!).toLocaleDateString(undefined, { weekday: 'short' })}</span>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="text-center py-6 border border-dashed border-border">
+                                                <p className="text-text-secondary font-mono text-sm">No tactics scheduled for this week.</p>
+                                                <button onClick={() => setCreateTaskModalOpen(true)} className="mt-2 text-primary text-xs font-bold uppercase hover:underline">Add Tactic</button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right Column: Scorecard & WAM */}
+                            <div className="flex flex-col gap-6 h-full">
+                                {/* Weekly Scorecard */}
+                                <div className="bg-bg-card border border-border p-6 flex flex-col items-center justify-center text-center flex-1 min-h-[200px]">
+                                    <h3 className="text-sm font-mono uppercase tracking-wider text-text-secondary mb-4">Weekly Execution Score</h3>
+                                    <div className="relative h-32 w-32 flex items-center justify-center mb-4">
+                                        <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
+                                            <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="8" className="text-border" />
+                                            <circle 
+                                                cx="50" 
+                                                cy="50" 
+                                                r="45" 
+                                                fill="none" 
+                                                stroke="currentColor" 
+                                                strokeWidth="8" 
+                                                className="text-primary transition-all duration-1000 ease-out"
+                                                strokeDasharray={`${2 * Math.PI * 45}`}
+                                                strokeDashoffset={`${2 * Math.PI * 45 * (1 - (() => {
+                                                    const now = new Date();
+                                                    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+                                                    startOfWeek.setHours(0, 0, 0, 0);
+                                                    const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
+                                                    endOfWeek.setHours(23, 59, 59, 999);
+                                                    
+                                                    const weeklyTasks = tasks.filter(t => {
+                                                        if (!t.due_date) return false;
+                                                        const due = new Date(t.due_date);
+                                                        return due >= startOfWeek && due <= endOfWeek;
+                                                    });
+                                                    
+                                                    if (weeklyTasks.length === 0) return 0;
+                                                    const completed = weeklyTasks.filter(t => t.status === 'completed').length;
+                                                    return completed / weeklyTasks.length;
+                                                })())}`}
+                                            />
+                                        </svg>
+                                        <div className="absolute inset-0 flex items-center justify-center flex-col">
+                                            <span className="text-3xl font-bold font-mono text-text-primary">
+                                                {(() => {
+                                                    const now = new Date();
+                                                    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+                                                    startOfWeek.setHours(0, 0, 0, 0);
+                                                    const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
+                                                    endOfWeek.setHours(23, 59, 59, 999);
+                                                    
+                                                    const weeklyTasks = tasks.filter(t => {
+                                                        if (!t.due_date) return false;
+                                                        const due = new Date(t.due_date);
+                                                        return due >= startOfWeek && due <= endOfWeek;
+                                                    });
+                                                    
+                                                    if (weeklyTasks.length === 0) return 0;
+                                                    const completed = weeklyTasks.filter(t => t.status === 'completed').length;
+                                                    return Math.round((completed / weeklyTasks.length) * 100);
+                                                })()}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-text-secondary max-w-[200px]">
+                                        {(() => {
+                                            const score = (() => {
+                                                const now = new Date();
+                                                const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+                                                startOfWeek.setHours(0, 0, 0, 0);
+                                                const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
+                                                endOfWeek.setHours(23, 59, 59, 999);
+                                                const weeklyTasks = tasks.filter(t => t.due_date && new Date(t.due_date) >= startOfWeek && new Date(t.due_date) <= endOfWeek);
+                                                if (weeklyTasks.length === 0) return 0;
+                                                return Math.round((weeklyTasks.filter(t => t.status === 'completed').length / weeklyTasks.length) * 100);
+                                            })();
+                                            
+                                            if (score >= 85) return "Great job! You're crushing your weekly goals.";
+                                            if (score >= 60) return "Keep pushing! You're close to the 85% target.";
+                                            return "Focus needed! execute your key tactics to get back on track.";
+                                        })()}
+                                    </p>
+                                </div>
+
+                                {/* WAM Block */}
+                                <div className="bg-bg-card border border-border p-6">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="text-sm font-bold font-sans uppercase flex items-center gap-2">
+                                            <TrendingUp className="h-4 w-4 text-primary" />
+                                            WAM Check-in
+                                        </h3>
+                                        <span className="text-[10px] font-mono uppercase tracking-wider text-text-secondary bg-bg-dark px-2 py-1 rounded border border-border">Weekly</span>
+                                    </div>
+                                    <button 
+                                        onClick={() => window.open('https://docs.google.com/document/create', '_blank')}
+                                        className="w-full py-3 bg-bg-dark border border-border hover:border-primary/50 text-text-secondary hover:text-primary transition-all text-sm font-mono flex items-center justify-center gap-2 group"
+                                    >
+                                        <AlertCircle className="h-4 w-4 group-hover:text-primary transition-colors" />
+                                        Start Weekly Review
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     {/* Tabs Navigation */}
                     <div className="flex items-center gap-6 mt-8 border-b border-border">
                         <button
@@ -492,6 +699,15 @@ export default function ProjectDetail() {
                                                                 <ArrowLeftRight className="h-3 w-3" />
                                                             </button>
                                                         )}
+                                                        {task.is_community && isOwner && (
+                                                            <button
+                                                                onClick={() => { setTaskForApplications(task); setApplicationsModalOpen(true); }}
+                                                                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-primary/5 rounded text-text-secondary transition-all"
+                                                                title="View Applications"
+                                                            >
+                                                                <Users className="h-3 w-3" />
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </td>
                                                 <td className="py-4 px-6">
@@ -542,8 +758,8 @@ export default function ProjectDetail() {
                             </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center py-16 text-center">
-                                <div className="h-12 w-12 rounded-full bg-border flex items-center justify-center mb-4">
-                                    <LayoutList className="h-6 w-6 text-text-secondary" />
+                                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                                    <LayoutList className="h-6 w-6 text-primary" />
                                 </div>
                                 <h3 className="text-lg font-bold text-text-primary font-sans uppercase">No tasks yet</h3>
                                 <p className="text-text-secondary max-w-sm mt-2 font-mono text-sm">
@@ -891,6 +1107,17 @@ export default function ProjectDetail() {
                 }}
                 task={taskToSwap}
                 members={project?.members || []}
+                onAssign={handleAssignTask}
+                onUpdate={loadTasks}
+            />
+
+            <TaskApplicationsModal
+                isOpen={applicationsModalOpen}
+                onClose={() => {
+                    setApplicationsModalOpen(false)
+                    setTaskForApplications(null)
+                }}
+                task={taskForApplications}
                 onAssign={handleAssignTask}
             />
         </div>

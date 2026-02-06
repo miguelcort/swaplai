@@ -73,11 +73,19 @@ export const projectsApi = {
     },
 
     // Update project
-    async updateProject(id: string, updates: Partial<CreateProjectInput>): Promise<Project> {
-        const cleanUpdates = { ...updates }
+    async updateProject(id: string, updates: Partial<Project>): Promise<Project> {
+        const cleanUpdates: any = { ...updates }
         if (cleanUpdates.due_date === '') {
             cleanUpdates.due_date = null
         }
+
+        // Remove non-updatable fields if passed (safeguard)
+        delete cleanUpdates.id
+        delete cleanUpdates.owner_id
+        delete cleanUpdates.created_at
+        delete cleanUpdates.updated_at
+        delete cleanUpdates.members
+        delete cleanUpdates.tasks
 
         const { data, error } = await supabase
             .from('projects')
@@ -207,7 +215,65 @@ export const projectsApi = {
         }
     },
 
-    // Trigger project completion reward
+    // Health Plan Methods
+    async getActiveHealthPlan() {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
+        
+        const { data, error } = await supabase
+            .from('health_plans')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('status', 'active')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single()
+            
+        if (error && error.code !== 'PGRST116') { // PGRST116 is "Row not found"
+             console.error('Error fetching health plan:', error)
+             return null
+        }
+        return data
+    },
+
+    async checkInHealthDaily() {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
+
+        const { data, error } = await supabase.rpc('check_in_health_daily', {
+            user_id_input: user.id
+        })
+
+        if (error) throw error
+        return data
+    },
+
+    // Complete project and trigger reward (Atomic)
+    async completeProject(projectId: string): Promise<{ success: boolean, message?: string, added?: number }> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return { success: false, message: 'Not authenticated' }
+
+        try {
+            const { data, error } = await supabase.rpc('complete_project_and_reward', {
+                p_id: projectId,
+                u_id: user.id
+            })
+            
+            if (error) throw error
+            return data
+        } catch (e: any) {
+             // Fallback for dev if migration not run: use old method
+             if (e.code === 'PGRST202' || e.message?.includes('Could not find the function')) {
+                console.warn('Using fallback completion logic (migration 017 missing)')
+                await this.updateProject(projectId, { status: 'Completed' })
+                return this.rewardProjectCompletion()
+            }
+            console.error('Project completion RPC failed:', e)
+            return { success: false, message: e.message }
+        }
+    },
+
+    // Trigger project completion reward (Deprecated - use completeProject)
     async rewardProjectCompletion(): Promise<{ success: boolean, added?: number }> {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return { success: false }
@@ -403,6 +469,7 @@ export const tasksApi = {
                 frequency: input.frequency,
                 duration: input.duration,
                 notes: input.notes,
+                is_community: input.is_community || false,
                 created_by: user.id
             })
             .select()
@@ -412,11 +479,168 @@ export const tasksApi = {
         return data
     },
 
-    // Update task
-    async updateTask(taskId: string, updates: UpdateTaskInput): Promise<Task> {
+    // Get community tasks
+    async getCommunityTasks(): Promise<Task[]> {
         const { data, error } = await supabase
             .from('tasks')
-            .update(updates)
+            .select(`
+                *,
+                project:projects(title:name),
+                assignee:profiles!tasks_assigned_to_profiles_fk(*)
+            `)
+            .eq('is_community', true)
+            .neq('status', 'completed')
+            .order('created_at', { ascending: false })
+
+        if (error) throw error
+        return data || []
+    },
+
+    // Apply to task
+    async applyToTask(taskId: string, message?: string, bidAmount?: number): Promise<any> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
+
+        const { data, error } = await supabase
+            .from('task_applications')
+            .insert({
+                task_id: taskId,
+                applicant_id: user.id,
+                message,
+                bid_amount: bidAmount
+            })
+            .select()
+            .single()
+
+        if (error) throw error
+        return data
+    },
+
+    // Get applications for a task
+    async getTaskApplications(taskId: string): Promise<any[]> {
+        // First get the applications
+        const { data: applications, error } = await supabase
+            .from('task_applications')
+            .select('*')
+            .eq('task_id', taskId)
+
+        if (error) throw error
+        if (!applications || applications.length === 0) return []
+
+        // Then get the profiles for the applicants
+        const applicantIds = [...new Set(applications.map(app => app.applicant_id))]
+        
+        const { data: profiles, error: profilesError } = await supabase
+            .from('profiles')
+            .select('*')
+            .in('id', applicantIds)
+
+        if (profilesError) throw profilesError
+
+        // Merge profiles into applications
+        const profilesMap = new Map(profiles?.map(p => [p.id, p]))
+        
+        return applications.map(app => ({
+            ...app,
+            applicant: profilesMap.get(app.applicant_id) || null
+        }))
+    },
+
+    // Update application status
+    async updateApplicationStatus(applicationId: string, status: 'accepted' | 'rejected'): Promise<void> {
+        const { error } = await supabase
+            .from('task_applications')
+            .update({ status })
+            .eq('id', applicationId)
+
+        if (error) throw error
+    },
+
+    // Submit task delivery
+    async submitTaskDelivery(applicationId: string, content: string): Promise<void> {
+        const { error } = await supabase
+            .from('task_applications')
+            .update({ 
+                delivery_status: 'submitted',
+                delivery_content: content
+            })
+            .eq('id', applicationId)
+
+        if (error) throw error
+    },
+
+    // Review task delivery
+    async reviewTaskDelivery(applicationId: string, status: 'changes_requested' | 'approved', feedback?: string): Promise<void> {
+        const { error } = await supabase
+            .from('task_applications')
+            .update({ 
+                delivery_status: status,
+                delivery_feedback: feedback
+            })
+            .eq('id', applicationId)
+
+        if (error) throw error
+    },
+
+    // Rate user
+    async rateUser(applicationId: string, rating: number): Promise<void> {
+        const { error } = await supabase
+            .from('task_applications')
+            .update({ rating })
+            .eq('id', applicationId)
+
+        if (error) throw error
+    },
+
+    // Get tasks I applied to
+    async getMyAppliedTasks(): Promise<any[]> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
+
+        const { data, error } = await supabase
+            .from('task_applications')
+            .select(`
+                *,
+                task:tasks!task_applications_task_id_fkey(*)
+            `)
+            .eq('applicant_id', user.id)
+            .order('created_at', { ascending: false })
+
+        if (error) throw error
+        return data || []
+    },
+
+    // Get my community tasks (tasks I created)
+    async getMyCommunityTasks(): Promise<Task[]> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
+
+        const { data, error } = await supabase
+            .from('tasks')
+            .select(`
+                *,
+                project:projects(title:name),
+                applications:task_applications(count)
+            `)
+            .eq('is_community', true)
+            .eq('created_by', user.id)
+            .order('created_at', { ascending: false })
+
+        if (error) throw error
+        return data || []
+    },
+
+
+    // Update task
+    async updateTask(taskId: string, updates: UpdateTaskInput): Promise<Task> {
+        const cleanUpdates = { ...updates }
+        if (cleanUpdates.due_date === '') {
+            cleanUpdates.due_date = null
+        }
+
+        const { data, error } = await supabase
+            .from('tasks')
+            .update(cleanUpdates)
             .eq('id', taskId)
             .select()
             .single()

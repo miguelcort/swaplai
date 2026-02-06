@@ -6,9 +6,10 @@ interface ModalProps {
     onClose: () => void
     title: string
     children: ReactNode
+    maxWidth?: string
 }
 
-export function Modal({ isOpen, onClose, title, children }: ModalProps) {
+export function Modal({ isOpen, onClose, title, children, maxWidth = "max-w-md" }: ModalProps) {
     if (!isOpen) return null
 
     return (
@@ -21,7 +22,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
 
             {/* Modal */}
             <div className="flex min-h-full items-center justify-center p-4">
-                <div className="relative bg-bg-card border border-border shadow-2xl max-w-md w-full animate-in fade-in zoom-in-95 duration-200">
+                <div className={`relative bg-bg-card border border-border shadow-2xl w-full animate-in fade-in zoom-in-95 duration-200 ${maxWidth}`}>
                     {/* Header */}
                     <div className="flex items-center justify-between p-6 border-b border-border">
                         <h2 className="text-xl font-bold text-text-primary font-sans uppercase tracking-wide">{title}</h2>

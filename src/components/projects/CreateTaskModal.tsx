@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Modal } from '../ui/Modal'
+import { Switch } from '../ui/Switch'
 import { tasksApi } from '../../lib/projectsApi'
-import { Calendar, DollarSign, User, Flag } from 'lucide-react'
+import { Calendar, DollarSign, User, Flag, Globe } from 'lucide-react'
 import type { CreateTaskInput, ProjectMember, TaskPriority, Task } from '../../types/projects'
 
 interface CreateTaskModalProps {
@@ -23,7 +24,8 @@ export function CreateTaskModal({ isOpen, onClose, projectId, members, onSuccess
         due_date: '',
         frequency: 'once',
         duration: '',
-        notes: ''
+        notes: '',
+        is_community: false
     })
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -39,7 +41,8 @@ export function CreateTaskModal({ isOpen, onClose, projectId, members, onSuccess
                 due_date: taskToEdit.due_date ? taskToEdit.due_date.split('T')[0] : '',
                 frequency: taskToEdit.frequency || 'once',
                 duration: taskToEdit.duration || '',
-                notes: taskToEdit.notes || ''
+                notes: taskToEdit.notes || '',
+                is_community: taskToEdit.is_community || false
             })
         } else {
             setFormData({
@@ -51,7 +54,8 @@ export function CreateTaskModal({ isOpen, onClose, projectId, members, onSuccess
                 due_date: '',
                 frequency: 'once',
                 duration: '',
-                notes: ''
+                notes: '',
+                is_community: false
             })
         }
     }, [taskToEdit, isOpen])
@@ -78,7 +82,8 @@ export function CreateTaskModal({ isOpen, onClose, projectId, members, onSuccess
                     due_date: '',
                     frequency: 'once',
                     duration: '',
-                    notes: ''
+                    notes: '',
+                    is_community: false
                 })
             }
             onSuccess()
@@ -263,6 +268,23 @@ export function CreateTaskModal({ isOpen, onClose, projectId, members, onSuccess
                         onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                         className="w-full px-4 py-3 bg-bg-dark border border-border text-text-primary focus:outline-none focus:border-primary transition-colors font-mono"
                         placeholder="Additional notes..."
+                    />
+                </div>
+
+                {/* Community Task Toggle */}
+                <div className="flex items-center justify-between p-4 bg-primary/5 border border-primary/10">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-primary/10 rounded-full text-primary">
+                            <Globe className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold text-text-primary font-mono uppercase">Community Task</p>
+                            <p className="text-xs text-text-secondary">Make this task available for others to help</p>
+                        </div>
+                    </div>
+                    <Switch
+                        checked={formData.is_community || false}
+                        onCheckedChange={(checked) => setFormData({ ...formData, is_community: checked })}
                     />
                 </div>
 

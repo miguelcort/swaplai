@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, MessageSquare, Settings, LogOut, ListTree, X, Trophy } from 'lucide-react'
+import { LayoutDashboard, MessageSquare, Settings, LogOut, ListTree, X, Trophy, Globe } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { Avatar, AvatarFallback } from '../ui/Avatar'
 import { useAuthStore } from '../../stores/authStore'
@@ -19,6 +19,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
     const navItems = [
         { icon: LayoutDashboard, label: 'Dashboard', href: '/', id: 'dashboard' },
         { icon: ListTree, label: 'Projects', href: '/projects', id: 'projects' },
+        { icon: Globe, label: 'Community', href: '/community', id: 'community' },
         { icon: Trophy, label: 'Journey', href: '/journey', id: 'journey' },
         { icon: MessageSquare, label: 'Conversations', href: '/chat', id: 'conversations' },
         { icon: Settings, label: 'Settings', href: '/settings', id: 'settings' },
@@ -79,6 +80,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
                         return (
                             <div
                                 key={item.id}
+                                id={`nav-item-${item.id}`}
                                 onClick={() => {
                                     navigate(item.href)
                                     onClose?.()

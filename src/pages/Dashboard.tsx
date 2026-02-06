@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { DashboardStats } from '../components/dashboard/DashboardStats'
 import { ProjectsTable } from '../components/dashboard/ProjectsTable'
+import { HealthPlanCard } from '../components/dashboard/HealthPlanCard'
 import { NotificationBell } from '../components/layout/NotificationBell'
 import { projectsApi } from '../lib/projectsApi'
 //import { Crown } from 'lucide-react'
@@ -54,8 +55,17 @@ export default function Dashboard() {
                         isLoading={loading}
                     />
 
-                    {/* Projects Table */}
-                    <ProjectsTable />
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Projects Table - Takes 2 cols */}
+                        <div className="lg:col-span-2">
+                            <ProjectsTable />
+                        </div>
+                        
+                        {/* Health Plan - Takes 1 col */}
+                        <div className="lg:col-span-1">
+                             <HealthPlanCard />
+                        </div>
+                    </div>
 
                 </div>
             </div>

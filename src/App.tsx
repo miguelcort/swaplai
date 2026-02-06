@@ -7,6 +7,7 @@ import Notifications from './pages/Notifications'
 import Settings from './pages/Settings'
 import ProjectDetail from './pages/ProjectDetail'
 import Projects from './pages/Projects'
+import CommunityTasks from './pages/CommunityTasks'
 import Journey from './pages/Journey'
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
@@ -91,6 +92,7 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="projects" element={<Projects />} />
             <Route path="projects/:id" element={<ProjectDetail />} />
+            <Route path="community" element={<CommunityTasks />} />
             <Route path="journey" element={<Journey />} />
             <Route path="chat" element={<Chat />} />
             <Route path="chat/:id" element={<Chat />} />

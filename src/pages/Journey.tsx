@@ -78,27 +78,27 @@ export default function Journey() {
                     
                     {/* Instructions Section */}
                     <div className="mb-12 w-full bg-bg-card border border-border p-6 rounded-xl z-10 relative">
-                        <h3 className="text-sm font-bold uppercase tracking-wider text-text-secondary mb-4">How to Progress</h3>
+                        <h3 className="text-sm font-bold uppercase tracking-wider text-text-secondary mb-4">Rewards & Progress</h3>
                         <div className="space-y-4">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-primary/10 rounded-lg text-primary"><Flame className="h-4 w-4" /></div>
                                 <div>
-                                    <p className="text-sm font-bold text-text-primary">Daily Connection</p>
-                                    <p className="text-xs text-text-secondary">Login daily to build your streak</p>
+                                    <p className="text-sm font-bold text-text-primary">Daily Login (+1 Credit)</p>
+                                    <p className="text-xs text-text-secondary">Connect daily to build your streak.</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-accent-green/10 rounded-lg text-accent-green"><CheckCircle className="h-4 w-4" /></div>
                                 <div>
-                                    <p className="text-sm font-bold text-text-primary">Complete Projects</p>
-                                    <p className="text-xs text-text-secondary">Finish projects to earn major XP</p>
+                                    <p className="text-sm font-bold text-text-primary">Complete Project (+5 Credits)</p>
+                                    <p className="text-xs text-text-secondary">Finish projects to earn major XP.</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500"><Zap className="h-4 w-4" /></div>
                                 <div>
-                                    <p className="text-sm font-bold text-text-primary">Complete Health Plans</p>
-                                    <p className="text-xs text-text-secondary">Weekly goals give bonus rewards</p>
+                                    <p className="text-sm font-bold text-text-primary">Weekly Health Plan (+10 Credits)</p>
+                                    <p className="text-xs text-text-secondary">Complete a full week of health goals.</p>
                                 </div>
                             </div>
                         </div>
@@ -153,7 +153,7 @@ export default function Journey() {
 
                                 {/* Current Indicator Label (Side) */}
                             {isCurrent && (
-                                <div className="absolute left-full ml-3 bg-primary/10 border border-primary/20 text-primary text-xs font-bold px-3 py-1.5 rounded-md whitespace-nowrap animate-in fade-in slide-in-from-left-2">
+                                <div className="absolute left-full ml-1.5 bg-primary/10 border border-primary/20 text-primary text-xs font-bold px-2 py-1 rounded-md whitespace-nowrap animate-in fade-in slide-in-from-left-2 z-20">
                                     Current
                                 </div>
                             )}

@@ -11,7 +11,8 @@ import {
     Sun,
     Laptop,
     Save,
-    CreditCard
+    CreditCard,
+    HelpCircle
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -26,13 +27,15 @@ import { useProfileStore } from '../stores/profileStore'
 import { toast } from '../hooks/useToast'
 import { useAuthStore } from '../stores/authStore'
 import { supabase } from '../lib/supabase'
+import { useTour } from '../hooks/useTour'
 
-type Tab = 'general' | 'profile' | 'appearance' | 'notifications' | 'security' | 'credits'
+type Tab = 'general' | 'profile' | 'appearance' | 'notifications' | 'security' | 'credits' | 'help'
 
 export default function Settings() {
     const [searchParams] = useSearchParams()
     const [activeTab, setActiveTab] = useState<Tab>('profile')
     const { credits, fetchCredits } = useAuthStore()
+    const { startTour } = useTour()
     
     // Profile store
     const { profile, fetchProfile, updateProfile, isLoading } = useProfileStore()
@@ -223,6 +226,7 @@ export default function Settings() {
         { id: 'appearance', label: 'Appearance', icon: Palette },
         { id: 'notifications', label: 'Notifications', icon: Bell },
         { id: 'security', label: 'Security', icon: Shield },
+        { id: 'help', label: 'Help & Tour', icon: HelpCircle },
     ]
 
     const handleThemeChange = (newTheme: 'light' | 'dark' | 'system' | 'custom') => {
@@ -701,6 +705,37 @@ export default function Settings() {
                                         <Button variant="ghost" className="w-full justify-start text-left font-normal text-red-600 hover:text-red-700 hover:bg-red-50">
                                             Delete Account
                                         </Button>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {activeTab === 'help' && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Help & Support</CardTitle>
+                                <CardDescription>Get help with using Swaplai.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="space-y-4">
+                                    <div className="p-6 border border-border rounded-lg bg-bg-card flex flex-col items-start gap-4">
+                                        <div>
+                                            <h3 className="font-bold text-lg text-text-primary mb-2">Guided Tour</h3>
+                                            <p className="text-text-secondary mb-4">
+                                                Take a quick tour of the application to learn how to manage projects, tasks, and use the AI chat.
+                                            </p>
+                                        </div>
+                                        <Button onClick={startTour} className="bg-primary text-bg-dark hover:bg-primary/90">
+                                            Start Product Tour
+                                        </Button>
+                                    </div>
+                                    
+                                    <div className="pt-4 border-t border-border">
+                                        <h4 className="font-bold text-sm text-text-primary mb-2">Need more help?</h4>
+                                        <p className="text-sm text-text-secondary">
+                                            Contact support at <a href="mailto:support@swaplai.com" className="text-primary hover:underline">support@swaplai.com</a>
+                                        </p>
                                     </div>
                                 </div>
                             </CardContent>

@@ -14,7 +14,7 @@ export function NotificationBell() {
     return (
         <button 
             onClick={() => navigate('/notifications')}
-            className="relative p-2 text-text-secondary hover:text-text-primary transition-colors rounded-none hover:bg-border"
+            className="relative p-2 text-text-secondary hover:text-primary transition-colors rounded-none hover:bg-primary/5"
         >
             <Bell className="h-5 w-5" />
             {unreadCount > 0 && (

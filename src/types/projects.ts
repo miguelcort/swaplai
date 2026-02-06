@@ -18,6 +18,8 @@ export interface Profile {
     email: string
     full_name?: string
     avatar_url?: string
+    rating_sum?: number
+    rating_count?: number
 }
 
 export interface ProjectMember {
@@ -49,9 +51,30 @@ export interface Task {
     duration?: string
     notes?: string
     streak_count?: number
+    is_community?: boolean
     created_at: string
     updated_at: string
     assignee?: Profile
+    project?: {
+        title: string
+    }
+    applications?: { count: number }[]
+}
+
+export interface TaskApplication {
+    id: string
+    task_id: string
+    applicant_id: string
+    status: 'pending' | 'accepted' | 'rejected'
+    message?: string
+    bid_amount?: number
+    delivery_status?: 'pending' | 'submitted' | 'changes_requested' | 'approved'
+    delivery_content?: string
+    delivery_feedback?: string
+    rating?: number
+    created_at: string
+    applicant?: Profile
+    task?: Task
 }
 
 export interface Payment {
@@ -104,10 +127,11 @@ export interface CreateTaskInput {
     priority?: TaskPriority
     cost?: number
     assigned_to?: string
-    due_date?: string
+    due_date?: string | null
     frequency?: 'once' | 'daily' | 'weekly' | 'monthly' | 'yearly'
     duration?: string
     notes?: string
+    is_community?: boolean
 }
 
 export interface UpdateTaskInput {
@@ -118,9 +142,10 @@ export interface UpdateTaskInput {
     cost?: number
     payment_status?: PaymentStatus
     assigned_to?: string
-    due_date?: string
+    due_date?: string | null
     completed_at?: string
     frequency?: 'once' | 'daily' | 'weekly' | 'monthly' | 'yearly'
     duration?: string
     notes?: string
+    is_community?: boolean
 }

@@ -1,10 +1,11 @@
-import { useState } from 'react'
-import { Sparkles, Users, ArrowLeft, Check } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Sparkles, Users, ArrowLeft, Check, Globe } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import type { Task, ProjectMember } from '../../types/projects'
 import { Modal } from '../ui/Modal'
-import { projectsApi } from '../../lib/projectsApi'
+import { projectsApi, tasksApi } from '../../lib/projectsApi'
+import { Switch } from '../ui/Switch'
 
 interface SwapTaskModalProps {
     isOpen: boolean
@@ -12,12 +13,21 @@ interface SwapTaskModalProps {
     task: Task | null
     members: ProjectMember[]
     onAssign: (taskId: string, memberId: string) => Promise<void>
+    onUpdate?: () => void
 }
 
-export function SwapTaskModal({ isOpen, onClose, task, members, onAssign }: SwapTaskModalProps) {
-    const [mode, setMode] = useState<'select' | 'ai' | 'team'>('select')
+export function SwapTaskModal({ isOpen, onClose, task, members, onAssign, onUpdate }: SwapTaskModalProps) {
+    const [mode, setMode] = useState<'select' | 'ai' | 'team' | 'community'>('select')
     const [loading, setLoading] = useState(false)
     const [aiResponse, setAiResponse] = useState<string | null>(null)
+    const [isCommunity, setIsCommunity] = useState(false)
+
+    // Sync local state with task when modal opens or task changes
+    useEffect(() => {
+        if (task) {
+            setIsCommunity(task.is_community || false)
+        }
+    }, [task])
 
     const handleReset = () => {
         setMode('select')
@@ -42,6 +52,22 @@ export function SwapTaskModal({ isOpen, onClose, task, members, onAssign }: Swap
         }
     }
 
+    const handleCommunityUpdate = async (checked: boolean) => {
+        if (!task) return
+        setLoading(true)
+        try {
+            await tasksApi.updateTask(task.id, { is_community: checked })
+            setIsCommunity(checked)
+            onUpdate?.()
+            // Optionally close or show success
+            // handleClose() 
+        } catch (error) {
+            console.error('Failed to update community status:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
     const handleAiSupport = async () => {
         if (!task) return
         setMode('ai')
@@ -60,7 +86,7 @@ export function SwapTaskModal({ isOpen, onClose, task, members, onAssign }: Swap
     if (!task) return null
 
     return (
-        <Modal isOpen={isOpen} onClose={handleClose} title="Swap / Support Task">
+        <Modal isOpen={isOpen} onClose={handleClose} title="Swap / Support Task" maxWidth="max-w-4xl">
             <div className="space-y-6">
                 <div className="p-4 bg-bg-card border border-border">
                     <h4 className="font-bold text-text-primary font-sans mb-1">{task.title}</h4>
@@ -68,10 +94,10 @@ export function SwapTaskModal({ isOpen, onClose, task, members, onAssign }: Swap
                 </div>
 
                 {mode === 'select' && (
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <button
                             onClick={handleAiSupport}
-                            className="p-6 border border-border hover:border-primary bg-bg-dark hover:bg-border transition-all group text-left relative overflow-hidden"
+                            className="p-6 border border-border hover:border-primary bg-bg-card hover:bg-primary/5 transition-all group text-left relative overflow-hidden flex flex-col h-full"
                         >
                             <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <Sparkles className="h-24 w-24 text-primary" />
@@ -83,7 +109,7 @@ export function SwapTaskModal({ isOpen, onClose, task, members, onAssign }: Swap
 
                         <button
                             onClick={() => setMode('team')}
-                            className="p-6 border border-border hover:border-blue-500 bg-bg-dark hover:bg-border transition-all group text-left relative overflow-hidden"
+                            className="p-6 border border-border hover:border-blue-500 bg-bg-card hover:bg-blue-500/5 transition-all group text-left relative overflow-hidden flex flex-col h-full"
                         >
                             <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <Users className="h-24 w-24 text-blue-500" />
@@ -92,6 +118,54 @@ export function SwapTaskModal({ isOpen, onClose, task, members, onAssign }: Swap
                             <h5 className="font-bold text-text-primary font-sans uppercase tracking-wide mb-2 relative z-10">Team Member</h5>
                             <p className="text-xs text-text-secondary font-mono relative z-10">Delegate or swap this task with a team member.</p>
                         </button>
+
+                        <button
+                            onClick={() => {
+                                setIsCommunity(task.is_community || false)
+                                setMode('community')
+                            }}
+                            className="p-6 border border-border hover:border-green-500 bg-bg-card hover:bg-green-500/5 transition-all group text-left relative overflow-hidden flex flex-col h-full"
+                        >
+                            <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <Globe className="h-24 w-24 text-green-500" />
+                            </div>
+                            <Globe className="h-8 w-8 text-green-500 mb-4 group-hover:scale-110 transition-transform relative z-10" />
+                            <h5 className="font-bold text-text-primary font-sans uppercase tracking-wide mb-2 relative z-10">Community</h5>
+                            <p className="text-xs text-text-secondary font-mono relative z-10">Make this task available for the community to help.</p>
+                        </button>
+                    </div>
+                )}
+
+                {mode === 'community' && (
+                    <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                        <button 
+                            onClick={() => setMode('select')}
+                            className="flex items-center gap-2 text-xs font-mono text-text-secondary hover:text-text-primary mb-2 uppercase tracking-wider"
+                        >
+                            <ArrowLeft className="h-3 w-3" /> Back
+                        </button>
+                        <h5 className="font-bold text-text-primary font-sans uppercase tracking-wide">Community Settings</h5>
+                        
+                        <div className="p-6 bg-bg-card border border-border flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-green-500/10 rounded-full text-green-500">
+                                    <Globe className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <h6 className="font-bold text-text-primary font-sans">Community Task</h6>
+                                    <p className="text-sm text-text-secondary font-mono">
+                                        {isCommunity 
+                                            ? "This task is visible to the community. Others can apply to help." 
+                                            : "Make this task visible to the community so others can apply."}
+                                    </p>
+                                </div>
+                            </div>
+                            <Switch
+                                checked={isCommunity}
+                                onCheckedChange={handleCommunityUpdate}
+                                disabled={loading}
+                            />
+                        </div>
                     </div>
                 )}
 
@@ -117,11 +191,11 @@ export function SwapTaskModal({ isOpen, onClose, task, members, onAssign }: Swap
                                         className={`w-full flex items-center justify-between p-3 border text-left transition-colors ${
                                             task.assigned_to === member.user_id
                                                 ? 'bg-bg-card border-primary cursor-default'
-                                                : 'bg-bg-dark border-border hover:border-text-secondary'
+                                                : 'bg-bg-card border-border hover:border-primary hover:bg-primary/5'
                                         }`}
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 bg-border flex items-center justify-center text-xs font-bold text-text-primary">
+                                            <div className="w-8 h-8 bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
                                                 {member.profiles?.full_name?.substring(0, 2).toUpperCase() || member.profiles?.email?.substring(0, 2).toUpperCase()}
                                             </div>
                                             <div>

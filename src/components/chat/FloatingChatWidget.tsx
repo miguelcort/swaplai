@@ -132,6 +132,7 @@ export function FloatingChatWidget() {
 
             {/* Toggle Button */}
             <button
+                id="floating-chat-toggle"
                 onClick={toggleOpen}
                 className={cn(
                     "h-14 w-14 rounded-none shadow-none hover:shadow-none border border-border pointer-events-auto",
