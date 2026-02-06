@@ -65,7 +65,7 @@ export function FloatingChatWidget() {
             {/* Chat Window */}
             <div 
                 className={cn(
-                    "bg-[#0A0A0A] rounded-none shadow-none flex flex-col overflow-hidden transition-all duration-300 origin-bottom-right border border-[#333333]",
+                    "bg-bg-dark rounded-none shadow-none flex flex-col overflow-hidden transition-all duration-300 origin-bottom-right border border-border",
                     isOpen 
                         ? "opacity-100 scale-100 translate-y-0 pointer-events-auto" 
                         : "opacity-0 scale-95 translate-y-4 pointer-events-none",
@@ -75,24 +75,24 @@ export function FloatingChatWidget() {
                 )}
             >
                 {/* Header */}
-                <div className="bg-[#0A0A0A] border-b border-[#333333] p-4 flex items-center justify-between shrink-0 z-10">
+                <div className="bg-bg-dark border-b border-border p-4 flex items-center justify-between shrink-0 z-10">
                     <div className="flex items-center gap-3">
                         <div className="relative">
-                            <Avatar className="h-10 w-10 border border-[#333333] rounded-none">
-                                <AvatarFallback className="bg-black text-white font-bold font-mono rounded-none">AI</AvatarFallback>
+                            <Avatar className="h-10 w-10 border border-border rounded-none">
+                                <AvatarFallback className="bg-bg-dark text-text-primary font-bold font-mono rounded-none">AI</AvatarFallback>
                             </Avatar>
-                            <span className="absolute bottom-0 right-0 h-2 w-2 rounded-none bg-[#1DBF73] shadow-none"></span>
+                            <span className="absolute bottom-0 right-0 h-2 w-2 rounded-none bg-accent-green shadow-none"></span>
                         </div>
-                        <div className="text-white">
+                        <div className="text-text-primary">
                             <h3 className="font-bold text-sm tracking-wide font-sans uppercase">Swaplai Assistant</h3>
-                            <p className="text-xs text-gray-400 font-mono">Online & Ready</p>
+                            <p className="text-xs text-text-secondary font-mono">Online & Ready</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-1">
                         <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="text-gray-400 hover:text-white hover:bg-[#333333] h-8 w-8 rounded-none transition-colors"
+                            className="text-text-secondary hover:text-text-primary hover:bg-border h-8 w-8 rounded-none transition-colors"
                             onClick={() => setIsExpanded(!isExpanded)}
                             title={isExpanded ? "Minimize" : "Maximize"}
                         >
@@ -101,7 +101,7 @@ export function FloatingChatWidget() {
                         <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="text-gray-400 hover:text-white hover:bg-[#333333] h-8 w-8 rounded-none transition-colors"
+                            className="text-text-secondary hover:text-text-primary hover:bg-border h-8 w-8 rounded-none transition-colors"
                             onClick={() => navigate('/chat')}
                             title="Open full page"
                         >
@@ -110,7 +110,7 @@ export function FloatingChatWidget() {
                         <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="text-gray-400 hover:text-white hover:bg-[#333333] h-8 w-8 rounded-none transition-colors"
+                            className="text-text-secondary hover:text-text-primary hover:bg-border h-8 w-8 rounded-none transition-colors"
                             onClick={() => setIsOpen(false)}
                             title="Close"
                         >
@@ -120,12 +120,12 @@ export function FloatingChatWidget() {
                 </div>
 
                 {/* Messages */}
-                <div className="flex-1 overflow-hidden flex flex-col bg-[#0A0A0A] relative">
+                <div className="flex-1 overflow-hidden flex flex-col bg-bg-dark relative">
                     <MessageList messages={messages} isLoading={isLoading} />
                 </div>
 
                 {/* Input */}
-                <div className="shrink-0 border-t border-[#333333] bg-[#0A0A0A]">
+                <div className="shrink-0 border-t border-border bg-bg-dark">
                     <ChatInput onSend={handleSendMessage} />
                 </div>
             </div>
@@ -134,12 +134,12 @@ export function FloatingChatWidget() {
             <button
                 onClick={toggleOpen}
                 className={cn(
-                    "h-14 w-14 rounded-none shadow-none hover:shadow-none border border-[#333333] pointer-events-auto",
+                    "h-14 w-14 rounded-none shadow-none hover:shadow-none border border-border pointer-events-auto",
                     "flex items-center justify-center transition-all duration-300 transform hover:translate-y-[-2px]",
-                    "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ring-offset-black",
+                    "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ring-offset-bg-dark",
                     isOpen 
-                        ? "bg-[#333333] text-white rotate-90" 
-                        : "bg-primary text-black hover:bg-primary/90"
+                        ? "bg-border text-text-primary rotate-90" 
+                        : "bg-primary text-bg-dark hover:bg-primary/90"
                 )}
                 title={isOpen ? "Close Chat" : "Open Chat"}
             >

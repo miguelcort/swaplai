@@ -45,6 +45,10 @@ export interface Task {
     created_by: string
     due_date?: string
     completed_at?: string
+    frequency?: 'once' | 'daily' | 'weekly' | 'monthly' | 'yearly'
+    duration?: string
+    notes?: string
+    streak_count?: number
     created_at: string
     updated_at: string
     assignee?: Profile
@@ -72,6 +76,7 @@ export interface Project {
     description?: string
     status: ProjectStatus
     budget: number
+    due_date?: string | null
     created_at: string
     updated_at: string
     members?: ProjectMember[]
@@ -85,6 +90,7 @@ export interface CreateProjectInput {
     name: string
     description?: string
     budget?: number
+    due_date?: string | null
 }
 
 export interface InviteTeamMemberInput {
@@ -99,6 +105,9 @@ export interface CreateTaskInput {
     cost?: number
     assigned_to?: string
     due_date?: string
+    frequency?: 'once' | 'daily' | 'weekly' | 'monthly' | 'yearly'
+    duration?: string
+    notes?: string
 }
 
 export interface UpdateTaskInput {
@@ -110,4 +119,8 @@ export interface UpdateTaskInput {
     payment_status?: PaymentStatus
     assigned_to?: string
     due_date?: string
+    completed_at?: string
+    frequency?: 'once' | 'daily' | 'weekly' | 'monthly' | 'yearly'
+    duration?: string
+    notes?: string
 }

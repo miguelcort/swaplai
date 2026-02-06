@@ -17,6 +17,7 @@ interface ChatState {
     loadConversations: () => Promise<void>
     loadMessages: (conversationId: string) => Promise<void>
     startNewChat: () => void
+    deleteConversation: (id: string) => Promise<void>
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -57,6 +58,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     startNewChat: () => {
         set({ activeConversationId: null, messages: [] })
+    },
+
+    deleteConversation: async (id: string) => {
+        try {
+            await api.deleteConversation(id)
+            const { conversations, activeConversationId, startNewChat } = get()
+            set({ conversations: conversations.filter(c => c.id !== id) })
+            
+            if (activeConversationId === id) {
+                startNewChat()
+            }
+        } catch (error) {
+            console.error('Failed to delete conversation:', error)
+        }
     },
 
     sendMessage: async (content: string) => {

@@ -46,20 +46,20 @@ export function InviteTeamModal({ isOpen, onClose, projectId, onSuccess }: Invit
         <Modal isOpen={isOpen} onClose={onClose} title="Invite Team Member">
             <form onSubmit={handleSubmit} className="space-y-6">
                 {error && (
-                    <div className="p-3 bg-[#0A0A0A] border border-red-900 text-sm text-red-500 font-mono">
+                    <div className="p-3 bg-bg-dark border border-red-900 text-sm text-red-500 font-mono">
                         {error}
                     </div>
                 )}
 
                 {success && (
-                    <div className="p-3 bg-[#0A0A0A] border border-emerald-900 text-sm text-emerald-500 font-mono">
+                    <div className="p-3 bg-bg-dark border border-emerald-900 text-sm text-emerald-500 font-mono">
                         Invitation sent successfully!
                     </div>
                 )}
 
                 {/* Email */}
                 <div>
-                    <label htmlFor="email" className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider font-mono">
+                    <label htmlFor="email" className="block text-xs font-bold text-text-secondary mb-2 uppercase tracking-wider font-mono">
                         Email Address *
                     </label>
                     <input
@@ -68,29 +68,29 @@ export function InviteTeamModal({ isOpen, onClose, projectId, onSuccess }: Invit
                         required
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full px-4 py-3 bg-[#0A0A0A] border border-[#333333] text-white focus:outline-none focus:border-[#C9A962] transition-colors font-mono"
+                        className="w-full px-4 py-3 bg-bg-dark border border-border text-text-primary focus:outline-none focus:border-primary transition-colors font-mono"
                         placeholder="colleague@example.com"
                     />
-                    <p className="mt-2 text-xs text-gray-500 font-mono">
+                    <p className="mt-2 text-xs text-text-secondary font-mono">
                         The user must have an account to receive the invitation
                     </p>
                 </div>
 
                 {/* Role */}
                 <div>
-                    <label htmlFor="role" className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider font-mono">
+                    <label htmlFor="role" className="block text-xs font-bold text-text-secondary mb-2 uppercase tracking-wider font-mono">
                         Role
                     </label>
                     <select
                         id="role"
                         value={formData.role}
                         onChange={(e) => setFormData({ ...formData, role: e.target.value as MemberRole })}
-                        className="w-full px-4 py-3 bg-[#0A0A0A] border border-[#333333] text-white focus:outline-none focus:border-[#C9A962] transition-colors font-mono appearance-none"
+                        className="w-full px-4 py-3 bg-bg-dark border border-border text-text-primary focus:outline-none focus:border-primary transition-colors font-mono appearance-none"
                     >
                         <option value="member">Member</option>
                         <option value="admin">Admin</option>
                     </select>
-                    <p className="mt-2 text-xs text-gray-500 font-mono">
+                    <p className="mt-2 text-xs text-text-secondary font-mono">
                         Admins can invite other members and manage tasks
                     </p>
                 </div>
@@ -100,14 +100,14 @@ export function InviteTeamModal({ isOpen, onClose, projectId, onSuccess }: Invit
                     <button
                         type="button"
                         onClick={onClose}
-                        className="flex-1 px-4 py-3 border border-[#333333] text-gray-400 hover:text-white hover:border-white transition-colors font-mono uppercase text-xs tracking-wider font-bold"
+                        className="flex-1 px-4 py-3 border border-border text-text-secondary hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-colors font-mono uppercase text-xs tracking-wider font-bold"
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
                         disabled={loading || !formData.email}
-                        className="flex-1 px-4 py-3 bg-[#C9A962] text-[#0A0A0A] hover:bg-[#b09355] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-mono uppercase text-xs tracking-wider font-bold"
+                        className="flex-1 px-4 py-3 bg-primary text-black hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-mono uppercase text-xs tracking-wider font-bold"
                     >
                         <UserPlus className="h-4 w-4" />
                         {loading ? 'Sending...' : 'Send Invitation'}

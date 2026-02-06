@@ -50,8 +50,8 @@ export function WalletSection() {
         <Card className="p-6 relative">
             <div className="absolute top-4 left-4 text-xs font-mono text-primary opacity-50">04</div>
             <div className="flex items-center justify-between mb-6 pl-8">
-                <h3 className="text-lg font-semibold text-white uppercase tracking-wider font-sans">My Wallet</h3>
-                <button className="text-sm text-primary hover:text-white font-mono uppercase tracking-wider">
+                <h3 className="text-lg font-semibold text-text-primary uppercase tracking-wider font-sans">My Wallet</h3>
+                <button className="text-sm text-primary hover:text-text-primary font-mono uppercase tracking-wider">
                     + Add New
                 </button>
             </div>
@@ -79,24 +79,24 @@ function WalletCard({ currencyCode, balance, status, flag }: WalletAccount) {
     }
 
     return (
-        <div className="p-4 bg-transparent border border-[#333333] hover:border-primary transition-colors">
+        <div className="p-4 bg-transparent border border-border hover:border-primary transition-colors">
             <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2">
                     <span className="text-2xl grayscale">{flag}</span>
-                    <span className="text-sm font-medium text-gray-400 font-mono">{currencyCode}</span>
+                    <span className="text-sm font-medium text-text-secondary font-mono">{currencyCode}</span>
                 </div>
-                <button className="text-gray-600 hover:text-white">
+                <button className="text-text-secondary hover:text-text-primary">
                     <MoreHorizontal className="h-4 w-4" />
                 </button>
             </div>
 
             <div className="space-y-2">
-                <p className="text-xl font-bold text-white font-sans">
+                <p className="text-xl font-bold text-text-primary font-sans">
                     {formatBalance(balance, currencyCode)}
                 </p>
                 <span className={`inline-block px-2 py-0.5 text-xs font-mono uppercase tracking-wider ${isActive
-                    ? 'bg-primary text-black'
-                    : 'bg-[#333333] text-gray-400'
+                    ? 'bg-primary text-bg-dark'
+                    : 'bg-border text-text-secondary'
                     }`}>
                     {status}
                 </span>

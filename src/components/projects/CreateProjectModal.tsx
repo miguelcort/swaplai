@@ -15,7 +15,8 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess, projectToEdit, 
     const [formData, setFormData] = useState<CreateProjectInput>({
         name: '',
         description: '',
-        budget: 0
+        budget: 0,
+        due_date: ''
     })
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -25,19 +26,22 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess, projectToEdit, 
             setFormData({
                 name: projectToEdit.name,
                 description: projectToEdit.description || '',
-                budget: projectToEdit.budget
+                budget: projectToEdit.budget,
+                due_date: projectToEdit.due_date || ''
             })
         } else if (initialData) {
             setFormData({
                 name: initialData.name || '',
                 description: initialData.description || '',
-                budget: initialData.budget || 0
+                budget: initialData.budget || 0,
+                due_date: initialData.due_date || ''
             })
         } else {
             setFormData({
                 name: '',
                 description: '',
-                budget: 0
+                budget: 0,
+                due_date: ''
             })
         }
     }, [projectToEdit, initialData, isOpen])
@@ -55,7 +59,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess, projectToEdit, 
             }
             
             if (!projectToEdit) {
-                setFormData({ name: '', description: '', budget: 0 })
+                setFormData({ name: '', description: '', budget: 0, due_date: '' })
             }
             onSuccess()
             onClose()
@@ -70,7 +74,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess, projectToEdit, 
         <Modal isOpen={isOpen} onClose={onClose} title={projectToEdit ? "Edit Project" : "Create New Project"}>
             <form onSubmit={handleSubmit} className="space-y-6">
                 {error && (
-                    <div className="p-3 bg-[#0A0A0A] border border-red-900 text-sm text-red-500 font-mono">
+                    <div className="p-3 bg-bg-dark border border-red-900 text-sm text-red-500 font-mono">
                         {error}
                     </div>
                 )}
@@ -86,7 +90,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess, projectToEdit, 
                         required
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full px-4 py-3 bg-[#0A0A0A] border border-[#333333] text-white focus:outline-none focus:border-[#C9A962] transition-colors font-mono"
+                        className="w-full px-4 py-3 bg-bg-dark border border-border text-text-primary focus:outline-none focus:border-primary transition-colors font-mono"
                         placeholder="Enter project name"
                     />
                 </div>
@@ -101,7 +105,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess, projectToEdit, 
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         rows={3}
-                        className="w-full px-4 py-3 bg-[#0A0A0A] border border-[#333333] text-white focus:outline-none focus:border-[#C9A962] transition-colors font-mono"
+                        className="w-full px-4 py-3 bg-bg-dark border border-border text-text-primary focus:outline-none focus:border-primary transition-colors font-mono"
                         placeholder="Describe your project..."
                     />
                 </div>
@@ -118,24 +122,38 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess, projectToEdit, 
                         step="0.01"
                         value={formData.budget}
                         onChange={(e) => setFormData({ ...formData, budget: parseFloat(e.target.value) || 0 })}
-                        className="w-full px-4 py-3 bg-[#0A0A0A] border border-[#333333] text-white focus:outline-none focus:border-[#C9A962] transition-colors font-mono"
+                        className="w-full px-4 py-3 bg-bg-dark border border-border text-text-primary focus:outline-none focus:border-primary transition-colors font-mono"
                         placeholder="0.00"
                     />
                 </div>
 
+                {/* Due Date */}
+                <div>
+                    <label htmlFor="due_date" className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider font-mono">
+                        Due Date
+                    </label>
+                    <input
+                        type="date"
+                        id="due_date"
+                        value={formData.due_date ? formData.due_date.split('T')[0] : ''}
+                        onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
+                        className="w-full px-4 py-3 bg-bg-dark border border-border text-text-primary focus:outline-none focus:border-primary transition-colors font-mono"
+                    />
+                </div>
+
                 {/* Actions */}
-                <div className="flex gap-3 pt-6 border-t border-[#333333]">
+                <div className="flex gap-3 pt-6 border-t border-border">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="flex-1 px-4 py-3 border border-[#333333] text-white hover:bg-[#333333] transition-colors font-mono uppercase text-xs tracking-wider font-bold"
+                        className="flex-1 px-4 py-3 border border-border text-text-secondary hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-colors font-mono uppercase text-xs tracking-wider font-bold"
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
                         disabled={loading}
-                        className="flex-1 px-4 py-3 bg-[#C9A962] text-[#0A0A0A] hover:bg-[#b09355] transition-colors font-mono uppercase text-xs tracking-wider font-bold disabled:opacity-50"
+                        className="flex-1 px-4 py-3 bg-primary text-bg-dark hover:bg-primary/90 transition-colors font-mono uppercase text-xs tracking-wider font-bold disabled:opacity-50"
                     >
                         {loading ? (projectToEdit ? 'UPDATING...' : 'CREATING...') : (projectToEdit ? 'UPDATE PROJECT' : 'CREATE PROJECT')}
                     </button>

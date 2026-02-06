@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, UserPlus, Plus, Trash2, Edit2, Users, LayoutList, X, Sparkles, ArrowLeftRight } from 'lucide-react'
+import { ArrowLeft, UserPlus, Plus, Trash2, Edit2, Users, LayoutList, X, Sparkles, ArrowLeftRight, CheckCircle, Check } from 'lucide-react'
 import type { Project, Task, ProjectMember } from '../types/projects'
 import { projectsApi, tasksApi } from '../lib/projectsApi'
 import { InviteTeamModal } from '../components/projects/InviteTeamModal'
 import { CreateTaskModal } from '../components/projects/CreateTaskModal'
-import { CreateProjectModal } from '../components/projects/CreateProjectModal'
 import { SwapTaskModal } from '../components/projects/SwapTaskModal'
 import { Modal } from '../components/ui/Modal'
 import { useAuthStore } from '../stores/authStore'
+import { toast } from '../hooks/useToast'
 
 export default function ProjectDetail() {
     const { id } = useParams<{ id: string }>()
@@ -23,8 +23,8 @@ export default function ProjectDetail() {
     // Modals state
     const [inviteModalOpen, setInviteModalOpen] = useState(false)
     const [createTaskModalOpen, setCreateTaskModalOpen] = useState(false)
-    const [editProjectModalOpen, setEditProjectModalOpen] = useState(false)
     const [deleteProjectModalOpen, setDeleteProjectModalOpen] = useState(false)
+    const [editProjectModalOpen, setEditProjectModalOpen] = useState(false)
     const [editMemberModalOpen, setEditMemberModalOpen] = useState(false)
     
     // Selection state
@@ -69,7 +69,8 @@ export default function ProjectDetail() {
                 description: task.description,
                 priority: task.priority || 'medium',
                 cost: task.cost || 0,
-                assigned_to: project.owner_id
+                assigned_to: project.owner_id,
+                due_date: task.due_date
             })))
             
             await loadTasks()
@@ -160,6 +161,33 @@ export default function ProjectDetail() {
         }
     }
 
+    const handleCompleteProject = async () => {
+        if (!project) return
+        try {
+            // 1. Update project status (cast to any if type restriction exists, or assume API handles it)
+            // @ts-ignore
+            await projectsApi.updateProject(project.id, { status: 'Completed' })
+            
+            // 2. Trigger reward
+            const reward = await projectsApi.rewardProjectCompletion()
+            if (reward.success) {
+                toast({
+                    title: "Project Completed!",
+                    description: `You earned ${reward.added} credits!`,
+                    type: "success"
+                })
+            } else {
+                 toast({ title: "Project Completed", description: "Status updated", type: "success" })
+            }
+            
+            // 3. Reload
+            loadProject()
+        } catch (error) {
+            console.error('Failed to complete project:', error)
+            toast({ title: "Error", description: "Failed to complete project", type: "error" })
+        }
+    }
+
     const handleAssignTask = async (taskId: string, memberId: string) => {
         try {
             await tasksApi.updateTask(taskId, { assigned_to: memberId })
@@ -167,6 +195,47 @@ export default function ProjectDetail() {
         } catch (error) {
             console.error('Failed to assign task:', error)
         }
+    }
+
+    const handleToggleTaskCompletion = async (task: Task) => {
+        try {
+            const result = await tasksApi.toggleTaskCompletion(task.id)
+            
+            if (result.status === 'completed') {
+                try {
+                    const stats = await projectsApi.updateGlobalStreak(true)
+                    toast({ 
+                        title: "Task Completed", 
+                        description: `Streak: ${stats.streak} | Credits: ${stats.credits_change > 0 ? '+' + stats.credits_change : '0'}`,
+                        type: "success" 
+                    })
+                } catch (e) {
+                    console.error("Failed to update global streak", e)
+                }
+            }
+            
+            if (result.bonus_awarded) {
+                // You could add a toast notification here
+                console.log('Credits awarded!')
+            }
+            
+            loadTasks()
+        } catch (error) {
+            console.error('Failed to update task status:', error)
+            toast({ title: "Error", description: "Failed to update task", type: "error" })
+        }
+    }
+
+    const getTimeRemaining = (dueDate: string) => {
+        const now = new Date()
+        const due = new Date(dueDate)
+        const diff = due.getTime() - now.getTime()
+        const days = Math.ceil(diff / (1000 * 60 * 60 * 24))
+        
+        if (days < 0) return 'Overdue'
+        if (days === 0) return 'Today'
+        if (days === 1) return 'Tomorrow'
+        return `${days} days left`
     }
     
     // We can reuse CreateProjectModal for editing if we tweak it, but for now let's just use it as is or handle logic?  
@@ -180,19 +249,19 @@ export default function ProjectDetail() {
     
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-[#0A0A0A]">
-                <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-solid border-[#C9A962] border-r-transparent"></div>
+            <div className="flex items-center justify-center min-h-screen bg-bg-dark">
+                <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-solid border-primary border-r-transparent"></div>
             </div>
         )
     }
 
     if (!project) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-[#0A0A0A]">
-                <p className="text-gray-400 mb-4 font-mono">PROJECT NOT FOUND</p>
+            <div className="flex flex-col items-center justify-center min-h-screen bg-bg-dark">
+                <p className="text-text-secondary mb-4 font-mono">PROJECT NOT FOUND</p>
                 <button
                     onClick={() => navigate('/')}
-                    className="px-6 py-3 bg-[#C9A962] text-[#0A0A0A] hover:bg-[#b09355] font-bold font-mono uppercase tracking-wider"
+                    className="px-6 py-3 bg-primary text-bg-dark hover:bg-primary/90 font-bold font-mono uppercase tracking-wider"
                 >
                     Return to Dashboard
                 </button>
@@ -206,14 +275,14 @@ export default function ProjectDetail() {
         .reduce((sum, task) => sum + task.cost, 0)
 
     return (
-        <div className="min-h-full bg-[#0A0A0A]">
+        <div className="min-h-full bg-bg-dark">
             {/* Header */}
-            <div className="bg-[#0A0A0A] border-b border-[#333333]">
+            <div className="bg-bg-dark border-b border-border">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div className="flex items-center justify-between mb-6">
                         <button
                             onClick={() => navigate('/projects')}
-                            className="flex items-center gap-2 text-gray-400 hover:text-white font-mono text-sm uppercase tracking-wider transition-colors"
+                            className="flex items-center gap-2 text-text-secondary hover:text-text-primary font-mono text-sm uppercase tracking-wider transition-colors"
                         >
                             <ArrowLeft className="h-4 w-4" />
                             Back to Projects
@@ -221,16 +290,25 @@ export default function ProjectDetail() {
                         
                         {isOwner && (
                             <div className="flex items-center gap-2">
+                                {project.status !== 'Completed' && (
+                                    <button
+                                        onClick={handleCompleteProject}
+                                        className="p-2 text-accent-green hover:bg-accent-green/10 transition-colors rounded-full"
+                                        title="Mark as Completed"
+                                    >
+                                        <CheckCircle className="h-5 w-5" />
+                                    </button>
+                                )}
                                 <button
                                     onClick={() => setEditProjectModalOpen(true)} // Placeholder
-                                    className="p-2 text-gray-400 hover:text-white hover:bg-[#333333] transition-colors"
+                                    className="p-2 text-text-secondary hover:text-text-primary hover:bg-primary/5 transition-colors"
                                     title="Edit Project"
                                 >
                                     <Edit2 className="h-4 w-4" />
                                 </button>
                                 <button
                                     onClick={() => setDeleteProjectModalOpen(true)}
-                                    className="p-2 text-red-900 hover:text-red-500 hover:bg-[#333333] transition-colors"
+                                    className="p-2 text-red-900 hover:text-red-500 hover:bg-primary/5 transition-colors"
                                     title="Delete Project"
                                 >
                                     <Trash2 className="h-4 w-4" />
@@ -241,16 +319,16 @@ export default function ProjectDetail() {
 
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold text-white font-sans uppercase tracking-wide">{project.name}</h1>
+                            <h1 className="text-3xl font-bold text-text-primary font-sans uppercase tracking-wide">{project.name}</h1>
                             {project.description && (
-                                <p className="text-gray-400 mt-2 font-mono text-sm max-w-2xl">{project.description}</p>
+                                <p className="text-text-secondary mt-2 font-mono text-sm max-w-2xl">{project.description}</p>
                             )}
                         </div>
 
                         {activeTab === 'team' && (
                             <button
                                 onClick={() => setInviteModalOpen(true)}
-                                className="flex items-center justify-center gap-2 px-6 py-3 bg-transparent border border-[#333333] text-white hover:bg-[#333333] transition-colors font-mono uppercase text-xs tracking-wider font-bold"
+                                className="flex items-center justify-center gap-2 px-6 py-3 bg-transparent border border-border text-text-primary hover:bg-primary/5 transition-colors font-mono uppercase text-xs tracking-wider font-bold"
                             >
                                 <UserPlus className="h-4 w-4" />
                                 Invite Team
@@ -262,14 +340,14 @@ export default function ProjectDetail() {
                                 <button 
                                     onClick={handleGenerateTasks}
                                     disabled={isGeneratingTasks}
-                                    className="flex items-center gap-2 px-6 py-3 bg-[#1A1A1A] border border-[#333333] text-[#C9A962] hover:bg-[#252525] transition-colors font-mono uppercase text-xs tracking-wider font-bold disabled:opacity-50"
+                                    className="flex items-center gap-2 px-6 py-3 bg-bg-card border border-border text-primary hover:bg-primary/5 transition-colors font-mono uppercase text-xs tracking-wider font-bold disabled:opacity-50"
                                 >
                                     <Sparkles className="h-4 w-4" />
                                     {isGeneratingTasks ? 'Thinking...' : 'AI Suggest'}
                                 </button>
                                 <button 
                                     onClick={() => setCreateTaskModalOpen(true)}
-                                    className="flex items-center gap-2 px-6 py-3 bg-[#C9A962] text-[#0A0A0A] hover:bg-[#b09355] transition-colors font-mono uppercase text-xs tracking-wider font-bold"
+                                    className="flex items-center gap-2 px-6 py-3 bg-primary text-bg-dark hover:bg-primary/90 transition-colors font-mono uppercase text-xs tracking-wider font-bold"
                                 >
                                     <Plus className="h-4 w-4" />
                                     Add Task
@@ -279,31 +357,37 @@ export default function ProjectDetail() {
                     </div>
 
                     {/* Stats */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8">
-                        <div className="bg-[#0A0A0A] border border-[#333333] p-4 group hover:border-[#C9A962] transition-colors">
-                            <p className="text-xs text-gray-500 font-mono uppercase tracking-wider">Status</p>
-                            <p className="text-lg font-bold text-white font-sans mt-1 uppercase">{project.status}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-8">
+                        <div className="bg-bg-card border border-border p-4 group hover:border-primary transition-colors">
+                            <p className="text-xs text-text-secondary font-mono uppercase tracking-wider">Status</p>
+                            <p className="text-lg font-bold text-text-primary font-sans mt-1 uppercase">{project.status}</p>
                         </div>
-                        <div className="bg-[#0A0A0A] border border-[#333333] p-4 group hover:border-[#C9A962] transition-colors">
-                            <p className="text-xs text-gray-500 font-mono uppercase tracking-wider">Budget</p>
-                            <p className="text-lg font-bold text-[#C9A962] font-mono mt-1">${project.budget.toFixed(2)}</p>
+                        <div className="bg-bg-card border border-border p-4 group hover:border-primary transition-colors">
+                            <p className="text-xs text-text-secondary font-mono uppercase tracking-wider">Due Date</p>
+                            <p className="text-lg font-bold text-text-primary font-mono mt-1">
+                                {project.due_date ? new Date(project.due_date).toLocaleDateString() : 'Not Set'}
+                            </p>
                         </div>
-                        <div className="bg-[#0A0A0A] border border-[#333333] p-4 group hover:border-[#C9A962] transition-colors">
-                            <p className="text-xs text-gray-500 font-mono uppercase tracking-wider">Total Cost</p>
-                            <p className="text-lg font-bold text-white font-mono mt-1">${totalCost.toFixed(2)}</p>
+                        <div className="bg-bg-card border border-border p-4 group hover:border-primary transition-colors">
+                            <p className="text-xs text-text-secondary font-mono uppercase tracking-wider">Budget</p>
+                            <p className="text-lg font-bold text-primary font-mono mt-1">${project.budget.toFixed(2)}</p>
                         </div>
-                        <div className="bg-[#0A0A0A] border border-[#333333] p-4 group hover:border-[#C9A962] transition-colors">
-                            <p className="text-xs text-gray-500 font-mono uppercase tracking-wider">Paid</p>
-                            <p className="text-lg font-bold text-[#C9A962] font-mono mt-1">${paidAmount.toFixed(2)}</p>
+                        <div className="bg-bg-card border border-border p-4 group hover:border-primary transition-colors">
+                            <p className="text-xs text-text-secondary font-mono uppercase tracking-wider">Total Cost</p>
+                            <p className="text-lg font-bold text-text-primary font-mono mt-1">${totalCost.toFixed(2)}</p>
+                        </div>
+                        <div className="bg-bg-card border border-border p-4 group hover:border-primary transition-colors">
+                            <p className="text-xs text-text-secondary font-mono uppercase tracking-wider">Paid</p>
+                            <p className="text-lg font-bold text-primary font-mono mt-1">${paidAmount.toFixed(2)}</p>
                         </div>
                     </div>
                     
                     {/* Tabs Navigation */}
-                    <div className="flex items-center gap-6 mt-8 border-b border-[#333333]">
+                    <div className="flex items-center gap-6 mt-8 border-b border-border">
                         <button
                             onClick={() => setActiveTab('tasks')}
                             className={`pb-4 text-sm font-bold uppercase tracking-wider font-mono transition-colors relative ${
-                                activeTab === 'tasks' ? 'text-[#C9A962]' : 'text-gray-500 hover:text-white'
+                                activeTab === 'tasks' ? 'text-primary' : 'text-text-secondary hover:text-text-primary'
                             }`}
                         >
                             <span className="flex items-center gap-2">
@@ -311,13 +395,13 @@ export default function ProjectDetail() {
                                 Tasks
                             </span>
                             {activeTab === 'tasks' && (
-                                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#C9A962]"></span>
+                                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></span>
                             )}
                         </button>
                         <button
                             onClick={() => setActiveTab('team')}
                             className={`pb-4 text-sm font-bold uppercase tracking-wider font-mono transition-colors relative ${
-                                activeTab === 'team' ? 'text-[#C9A962]' : 'text-gray-500 hover:text-white'
+                                activeTab === 'team' ? 'text-primary' : 'text-text-secondary hover:text-text-primary'
                             }`}
                         >
                             <span className="flex items-center gap-2">
@@ -325,7 +409,7 @@ export default function ProjectDetail() {
                                 Team
                             </span>
                             {activeTab === 'team' && (
-                                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#C9A962]"></span>
+                                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></span>
                             )}
                         </button>
                     </div>
@@ -335,111 +419,117 @@ export default function ProjectDetail() {
             {/* Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {activeTab === 'tasks' ? (
-                    <div className="bg-[#0A0A0A] border border-[#333333] overflow-hidden">
+                    <div className="bg-bg-card border border-border overflow-hidden">
                         {tasks.length > 0 ? (
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
-                                        <tr className="border-b border-[#333333] bg-[#0F0F0F] text-gray-500 font-mono text-xs uppercase tracking-wider">
+                                        <tr className="border-b border-border bg-bg-card text-text-secondary font-mono text-xs uppercase tracking-wider">
                                             <th className="py-4 px-6 font-bold w-1/3">Task</th>
                                             <th className="py-4 px-6 font-bold">Status</th>
                                             <th className="py-4 px-6 font-bold">Priority</th>
                                             <th className="py-4 px-6 font-bold">Assignee</th>
+                                            <th className="py-4 px-6 font-bold">Deadline</th>
                                             <th className="py-4 px-6 font-bold text-right">Budget</th>
                                             <th className="py-4 px-6 font-bold text-right w-24">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-[#333333]">
+                                    <tbody>
                                         {tasks.map((task) => (
-                                            <tr key={task.id} className="group hover:bg-[#111111] transition-colors">
+                                            <tr 
+                                                key={task.id} 
+                                                className="border-b border-border hover:bg-primary/5 transition-colors group"
+                                            >
                                                 <td className="py-4 px-6">
                                                     <div>
-                                                        <div className="font-bold text-white font-sans text-sm">{task.title}</div>
+                                                        <p className={`font-bold font-sans text-sm ${
+                                                            task.status === 'completed' ? 'text-text-secondary line-through' : 'text-text-primary'
+                                                        }`}>
+                                                            {task.title}
+                                                        </p>
                                                         {task.description && (
-                                                            <div className="text-xs text-gray-500 mt-1 font-mono truncate max-w-xs">{task.description}</div>
+                                                            <p className="text-xs text-text-secondary truncate max-w-xs font-mono mt-1">
+                                                                {task.description}
+                                                            </p>
                                                         )}
                                                     </div>
                                                 </td>
                                                 <td className="py-4 px-6">
                                                     <span
-                                                        className={`inline-flex items-center justify-center px-3 py-1 text-xs font-bold font-mono uppercase tracking-wider w-32 ${
+                                                        className={`inline-flex items-center px-2 py-1 text-xs font-bold uppercase tracking-wider font-mono border ${
                                                             task.status === 'completed'
-                                                                ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                                                                ? 'bg-green-500/10 text-green-500 border-green-500/20'
                                                                 : task.status === 'in_progress'
-                                                                    ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20'
-                                                                    : 'bg-gray-500/10 text-gray-500 border border-gray-500/20'
+                                                                ? 'bg-primary/10 text-primary border-primary/20'
+                                                                : 'bg-bg-dark text-text-secondary border-border'
                                                         }`}
                                                     >
                                                         {task.status.replace('_', ' ')}
                                                     </span>
                                                 </td>
                                                 <td className="py-4 px-6">
-                                                    <span
-                                                        className={`inline-flex items-center gap-1.5 text-xs font-bold font-mono uppercase tracking-wider ${
-                                                            task.priority === 'urgent'
-                                                                ? 'text-red-500'
-                                                                : task.priority === 'high'
-                                                                    ? 'text-orange-500'
-                                                                    : 'text-gray-400'
-                                                        }`}
-                                                    >
-                                                        <span className={`w-2 h-2 rounded-full ${
-                                                            task.priority === 'urgent' ? 'bg-red-500' :
-                                                            task.priority === 'high' ? 'bg-orange-500' :
-                                                            task.priority === 'medium' ? 'bg-yellow-500' : 'bg-gray-500'
-                                                        }`}></span>
+                                                    <span className={`text-xs font-bold uppercase font-mono ${
+                                                        task.priority === 'high' ? 'text-red-500' :
+                                                        task.priority === 'medium' ? 'text-primary' :
+                                                        'text-text-secondary'
+                                                    }`}>
                                                         {task.priority}
                                                     </span>
                                                 </td>
                                                 <td className="py-4 px-6">
-                                                    {task.assignee ? (
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="w-6 h-6 rounded-full bg-[#333333] flex items-center justify-center text-[10px] font-bold text-white border border-gray-600">
-                                                                {task.assignee.full_name?.substring(0, 2).toUpperCase() || task.assignee.email?.substring(0, 2).toUpperCase()}
-                                                            </div>
-                                                            <span className="text-sm text-gray-300 font-mono truncate max-w-[150px]">
-                                                                {task.assignee.full_name || task.assignee.email}
-                                                            </span>
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="h-6 w-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary">
+                                                            {task.assigned_to ? 
+                                                                project?.members?.find(m => m.user_id === task.assigned_to)?.profiles?.email?.[0].toUpperCase() || '?' 
+                                                                : '-'}
                                                         </div>
-                                                    ) : (
-                                                        <span className="text-xs text-gray-600 font-mono italic">Unassigned</span>
-                                                    )}
-                                                </td>
-                                                <td className="py-4 px-6 text-right">
-                                                    <div className="font-mono font-bold text-[#C9A962]">
-                                                        ${task.cost.toFixed(2)}
+                                                        {task.assigned_to && isOwner && (
+                                                            <button
+                                                                onClick={() => { setSwapModalOpen(true); setTaskToSwap(task); }}
+                                                                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-primary/5 rounded text-text-secondary transition-all"
+                                                                title="Swap Task"
+                                                            >
+                                                                <ArrowLeftRight className="h-3 w-3" />
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </td>
+                                                <td className="py-4 px-6">
+                                                    <span className={`text-xs font-mono font-bold ${
+                                                        getTimeRemaining(task.due_date || '') === 'Overdue' ? 'text-red-500' : 'text-text-secondary'
+                                                    }`}>
+                                                        {getTimeRemaining(task.due_date || '')}
+                                                    </span>
+                                                </td>
+                                                <td className="py-4 px-6 text-right font-mono text-sm font-bold text-text-primary">
+                                                    ${task.cost}
+                                                </td>
                                                 <td className="py-4 px-6 text-right">
-                                                    <div className="flex items-center justify-end gap-1">
-                                                        <button 
-                                                            onClick={(e) => {
-                                                                e.stopPropagation()
-                                                                setTaskToSwap(task)
-                                                                setSwapModalOpen(true)
-                                                            }}
-                                                            className="p-2 text-gray-400 hover:text-[#C9A962] hover:bg-[#333333] rounded transition-colors"
-                                                            title="Swap / Delegate Task"
+                                                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button
+                                                            onClick={() => handleToggleTaskCompletion(task)}
+                                                            className={`p-1.5 transition-colors ${
+                                                                task.status === 'completed' 
+                                                                    ? 'text-green-500 hover:text-green-400' 
+                                                                    : 'text-text-secondary hover:text-green-500'
+                                                            }`}
+                                                            title={task.status === 'completed' ? "Mark Incomplete" : "Mark Complete"}
                                                         >
-                                                            <ArrowLeftRight className="h-4 w-4" />
+                                                            <CheckCircle className="h-4 w-4" />
                                                         </button>
-                                                        <button 
-                                                            onClick={(e) => {
-                                                                e.stopPropagation()
-                                                                openEditTaskModal(task)
-                                                            }}
-                                                            className="p-2 text-gray-400 hover:text-white hover:bg-[#333333] rounded transition-colors"
-                                                            title="Edit Task"
+                                                        <button
+                                                            onClick={() => openEditTaskModal(task)}
+                                                            className="p-1.5 text-text-secondary hover:text-text-primary transition-colors"
+                                                            title="Edit"
                                                         >
                                                             <Edit2 className="h-4 w-4" />
                                                         </button>
-                                                        <button 
-                                                            onClick={(e) => {
-                                                                e.stopPropagation()
+                                                        <button
+                                                            onClick={() => {
                                                                 setTaskToDelete(task.id)
                                                             }}
-                                                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-[#333333] rounded transition-colors"
-                                                            title="Delete Task"
+                                                            className="p-1.5 text-text-secondary hover:text-red-500 transition-colors"
+                                                            title="Delete"
                                                         >
                                                             <Trash2 className="h-4 w-4" />
                                                         </button>
@@ -451,205 +541,136 @@ export default function ProjectDetail() {
                                 </table>
                             </div>
                         ) : (
-                            <div className="text-center py-16">
-                                <p className="text-gray-500 mb-6 font-mono text-sm">NO TASKS IN SYSTEM</p>
-                                <button 
-                                    onClick={() => setCreateTaskModalOpen(true)}
-                                    className="inline-flex items-center gap-2 px-6 py-3 border border-[#C9A962] text-[#C9A962] hover:bg-[#C9A962] hover:text-[#0A0A0A] transition-colors font-mono uppercase text-xs tracking-wider font-bold"
-                                >
-                                    <Plus className="h-4 w-4" />
-                                    Initialize First Task
-                                </button>
+                            <div className="flex flex-col items-center justify-center py-16 text-center">
+                                <div className="h-12 w-12 rounded-full bg-border flex items-center justify-center mb-4">
+                                    <LayoutList className="h-6 w-6 text-text-secondary" />
+                                </div>
+                                <h3 className="text-lg font-bold text-text-primary font-sans uppercase">No tasks yet</h3>
+                                <p className="text-text-secondary max-w-sm mt-2 font-mono text-sm">
+                                    Get started by creating a task or use AI to generate a plan for you.
+                                </p>
+                                <div className="flex gap-4 mt-6">
+                                    <button 
+                                        onClick={handleGenerateTasks}
+                                        disabled={isGeneratingTasks}
+                                        className="flex items-center gap-2 px-6 py-3 bg-bg-card border border-border text-primary hover:bg-primary/5 transition-colors font-mono uppercase text-xs tracking-wider font-bold disabled:opacity-50"
+                                    >
+                                        <Sparkles className="h-4 w-4" />
+                                        {isGeneratingTasks ? 'Thinking...' : 'AI Suggest'}
+                                    </button>
+                                    <button
+                                        onClick={() => setCreateTaskModalOpen(true)}
+                                        className="flex items-center gap-2 px-6 py-3 bg-primary text-bg-dark hover:bg-primary/90 transition-colors font-mono uppercase text-xs tracking-wider font-bold"
+                                    >
+                                        <Plus className="h-4 w-4" />
+                                        Create Task
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
                 ) : (
-                    <div className="space-y-8">
-                        {/* Pending Invitations */}
-                        {pendingMembers.length > 0 && (
-                            <div className="bg-[#0A0A0A] border border-[#333333] overflow-hidden">
-                                <div className="px-6 py-4 border-b border-[#333333] bg-[#0F0F0F] flex items-center justify-between">
-                                    <h3 className="font-mono text-sm font-bold text-[#C9A962] uppercase tracking-wider flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full bg-[#C9A962] animate-pulse"></div>
-                                        Pending Invitations
-                                    </h3>
-                                    <span className="text-xs font-mono text-gray-500">{pendingMembers.length} PENDING</span>
-                                </div>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left border-collapse">
-                                        <thead>
-                                            <tr className="border-b border-[#333333] text-gray-500 font-mono text-xs uppercase tracking-wider">
-                                                <th className="py-4 px-6 font-bold w-1/3">Email</th>
-                                                <th className="py-4 px-6 font-bold">Role</th>
-                                                <th className="py-4 px-6 font-bold">Invited</th>
-                                                <th className="py-4 px-6 font-bold text-right w-24">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-[#333333]">
-                                            {pendingMembers.map((member) => (
-                                                <tr key={member.id} className="group hover:bg-[#111111] transition-colors">
-                                                    <td className="py-4 px-6">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="w-8 h-8 bg-[#333333] border border-gray-700 flex items-center justify-center">
-                                                                <span className="text-xs font-bold text-gray-400 font-mono">
-                                                                    @
-                                                                </span>
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-sm font-bold text-white font-mono">
-                                                                    {member.profiles?.email || 'Unknown Email'}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="py-4 px-6">
-                                                        <span className="text-xs font-mono uppercase tracking-wider text-gray-300 bg-[#333333] px-2 py-1 rounded">
-                                                            {member.role}
-                                                        </span>
-                                                    </td>
-                                                    <td className="py-4 px-6">
-                                                        <span className="text-xs text-gray-500 font-mono">
-                                                            {new Date(member.invited_at).toLocaleDateString()}
-                                                        </span>
-                                                    </td>
-                                                    <td className="py-4 px-6 text-right">
-                                                        {isOwner && (
-                                                            <div className="flex items-center justify-end gap-1">
-                                                                <button 
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation()
-                                                                        setMemberToEdit(member)
-                                                                        setNewRole(member.role as 'admin' | 'member')
-                                                                        setEditMemberModalOpen(true)
-                                                                    }}
-                                                                    className="p-2 text-gray-400 hover:text-white hover:bg-[#333333] rounded transition-colors"
-                                                                    title="Edit Role"
-                                                                >
-                                                                    <Edit2 className="h-4 w-4" />
-                                                                </button>
-                                                                <button 
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation()
-                                                                        setMemberToRemove(member.id)
-                                                                    }}
-                                                                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-[#333333] rounded transition-colors"
-                                                                    title="Cancel Invitation"
-                                                                >
-                                                                    <X className="h-4 w-4" />
-                                                                </button>
-                                                            </div>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {/* Active Members */}
+                        {activeMembers.map((member) => (
+                            <div key={member.id} className="bg-bg-card border border-border p-6 group hover:border-primary transition-colors">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-12 w-12 bg-primary flex items-center justify-center text-lg font-bold text-bg-dark font-mono">
+                                            {member.profiles?.email?.[0].toUpperCase() || '?'}
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-text-primary font-sans uppercase text-sm">
+                                                {member.profiles?.email?.split('@')[0] || 'Unknown'}
+                                            </p>
+                                            <p className="text-xs text-text-secondary font-mono mt-1">{member.role}</p>
+                                        </div>
+                                    </div>
+                                    {isOwner && member.user_id !== user?.id && (
+                                        <div className="relative">
+                                            <button
+                                                onClick={() => {
+                                                    setMemberToEdit(member)
+                                                    setNewRole(member.role === 'owner' ? 'admin' : member.role)
+                                                    setEditMemberModalOpen(true)
+                                                }}
+                                                className="p-2 text-text-secondary hover:text-text-primary hover:bg-primary/5 transition-colors"
+                                            >
+                                                <Edit2 className="h-4 w-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setMemberToRemove(member.id)
+                                                }}
+                                                className="p-2 text-text-secondary hover:text-red-500 hover:bg-primary/5 transition-colors ml-1"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                        )}
+                        ))}
 
-                        {/* Active Team Members */}
-                        <div className="bg-[#0A0A0A] border border-[#333333] overflow-hidden">
-                            <div className="px-6 py-4 border-b border-[#333333] bg-[#0F0F0F] flex items-center justify-between">
-                                <h3 className="font-mono text-sm font-bold text-white uppercase tracking-wider">
-                                    Active Team Members
-                                </h3>
-                                <span className="text-xs font-mono text-gray-500">{activeMembers.length} MEMBERS</span>
+                        {/* Pending Members */}
+                        {pendingMembers.map((member) => (
+                            <div key={member.id} className="bg-bg-card border border-border border-dashed p-6 opacity-75">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-12 w-12 bg-border flex items-center justify-center text-lg font-bold text-text-secondary font-mono">
+                                            ?
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-text-primary font-sans uppercase text-sm">
+                                                {member.profiles?.email || 'Invited User'}
+                                            </p>
+                                            <p className="text-xs text-primary font-mono mt-1 uppercase tracking-wider">Pending</p>
+                                        </div>
+                                    </div>
+                                    {isOwner && (
+                                        <button
+                                            onClick={() => {
+                                                setMemberToRemove(member.id)
+                                            }}
+                                            className="p-2 text-text-secondary hover:text-red-500 hover:bg-primary/5 transition-colors"
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                            
-                            {activeMembers.length > 0 ? (
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left border-collapse">
-                                        <thead>
-                                            <tr className="border-b border-[#333333] text-gray-500 font-mono text-xs uppercase tracking-wider">
-                                                <th className="py-4 px-6 font-bold w-1/3">Member</th>
-                                                <th className="py-4 px-6 font-bold">Role</th>
-                                                <th className="py-4 px-6 font-bold">Joined</th>
-                                                <th className="py-4 px-6 font-bold text-right w-24">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-[#333333]">
-                                            {activeMembers.map((member) => (
-                                                <tr key={member.id} className="group hover:bg-[#111111] transition-colors">
-                                                    <td className="py-4 px-6">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 bg-black border border-[#333333] flex items-center justify-center overflow-hidden group-hover:border-[#C9A962] transition-colors">
-                                                                <span className="text-sm font-bold text-white font-mono">
-                                                                    {member.profiles?.full_name?.substring(0, 2).toUpperCase() || member.profiles?.email?.substring(0, 2).toUpperCase() || '?'}
-                                                                </span>
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-sm font-bold text-white truncate font-sans">
-                                                                    {member.profiles?.full_name || member.profiles?.email || 'Unknown User'}
-                                                                </p>
-                                                                <p className="text-xs text-gray-500 font-mono">{member.profiles?.email}</p>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="py-4 px-6">
-                                                        <span className="text-xs font-mono uppercase tracking-wider text-gray-300 bg-[#333333] px-2 py-1 rounded">
-                                                            {member.role}
-                                                        </span>
-                                                    </td>
-                                                    <td className="py-4 px-6">
-                                                        <span className="text-xs text-gray-500 font-mono">
-                                                            {new Date(member.responded_at || member.invited_at).toLocaleDateString()}
-                                                        </span>
-                                                    </td>
-                                                    <td className="py-4 px-6 text-right">
-                                                        {isOwner && member.user_id !== user?.id && (
-                                                            <div className="flex items-center justify-end gap-1">
-                                                                <button 
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation()
-                                                                        setMemberToEdit(member)
-                                                                        setNewRole(member.role as 'admin' | 'member')
-                                                                        setEditMemberModalOpen(true)
-                                                                    }}
-                                                                    className="p-2 text-gray-400 hover:text-white hover:bg-[#333333] rounded transition-colors"
-                                                                    title="Edit Role"
-                                                                >
-                                                                    <Edit2 className="h-4 w-4" />
-                                                                </button>
-                                                                <button 
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation()
-                                                                        setMemberToRemove(member.id)
-                                                                    }}
-                                                                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-[#333333] rounded transition-colors"
-                                                                    title="Remove Member"
-                                                                >
-                                                                    <X className="h-4 w-4" />
-                                                                </button>
-                                                            </div>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            ) : (
-                                <div className="text-center py-12">
-                                    <p className="text-sm text-gray-500 font-mono">No active team members yet</p>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Rejected/Other Members (Hidden by default or shown if needed, currently skipping to keep UI clean) */}
+                        ))}
+                        
+                        {/* Add Member Card */}
+                        <button
+                            onClick={() => setInviteModalOpen(true)}
+                            className="flex flex-col items-center justify-center p-6 border border-border border-dashed hover:border-primary hover:bg-primary/5 transition-all group min-h-[120px]"
+                        >
+                            <div className="h-10 w-10 rounded-full bg-border flex items-center justify-center group-hover:bg-primary group-hover:text-bg-dark transition-colors mb-3">
+                                <Plus className="h-5 w-5" />
+                            </div>
+                            <span className="text-sm font-bold text-text-secondary group-hover:text-text-primary font-mono uppercase tracking-wider">Invite Member</span>
+                        </button>
                     </div>
                 )}
             </div>
 
             {/* Modals */}
-            {id && (
-                <InviteTeamModal
-                    isOpen={inviteModalOpen}
-                    onClose={() => setInviteModalOpen(false)}
-                    projectId={id}
-                    onSuccess={loadProject}
-                />
-            )}
+            <InviteTeamModal
+                isOpen={inviteModalOpen}
+                onClose={() => setInviteModalOpen(false)}
+                projectId={id!}
+                onSuccess={loadProject}
+            />
+
+            <CreateTaskModal
+                isOpen={createTaskModalOpen}
+                onClose={closeTaskModal}
+                projectId={id!}
+                members={project?.members || []}
+                onSuccess={loadTasks}
+                taskToEdit={taskToEdit}
+            />
 
             {/* AI Generated Tasks Modal */}
             <Modal
@@ -658,125 +679,114 @@ export default function ProjectDetail() {
                 title="AI Suggested Tasks"
             >
                 <div className="space-y-4">
-                    <p className="text-gray-400 font-mono text-sm">Select tasks to add to your project:</p>
-                    <div className="max-h-[60vh] overflow-y-auto space-y-3 pr-2 custom-scrollbar">
-                        {generatedTasks.map((task, idx) => (
+                    <p className="text-text-secondary text-sm font-mono">
+                        Select the tasks you want to add to your project.
+                    </p>
+                    <div className="max-h-[60vh] overflow-y-auto space-y-3 pr-2">
+                        {generatedTasks.map((task, index) => (
                             <div 
-                                key={idx} 
-                                className={`p-4 border transition-colors cursor-pointer ${
-                                    selectedGeneratedTaskIndices.has(idx) 
-                                    ? 'bg-[#1A1A1A] border-[#C9A962]' 
-                                    : 'bg-[#0A0A0A] border-[#333333] hover:border-gray-600'
-                                }`}
+                                key={index}
                                 onClick={() => {
-                                    const newSet = new Set(selectedGeneratedTaskIndices)
-                                    if (newSet.has(idx)) newSet.delete(idx)
-                                    else newSet.add(idx)
-                                    setSelectedGeneratedTaskIndices(newSet)
+                                    const newSelected = new Set(selectedGeneratedTaskIndices)
+                                    if (newSelected.has(index)) {
+                                        newSelected.delete(index)
+                                    } else {
+                                        newSelected.add(index)
+                                    }
+                                    setSelectedGeneratedTaskIndices(newSelected)
                                 }}
+                                className={`p-4 border cursor-pointer transition-all ${
+                                    selectedGeneratedTaskIndices.has(index)
+                                        ? 'bg-primary/10 border-primary'
+                                        : 'bg-bg-card border-border hover:border-primary/50'
+                                }`}
                             >
-                                <div className="flex gap-3">
-                                    <div className={`mt-1 w-4 h-4 border flex items-center justify-center transition-colors ${
-                                        selectedGeneratedTaskIndices.has(idx)
-                                        ? 'bg-[#C9A962] border-[#C9A962]'
-                                        : 'border-gray-600'
+                                <div className="flex items-start gap-3">
+                                    <div className={`mt-1 h-4 w-4 border flex items-center justify-center ${
+                                        selectedGeneratedTaskIndices.has(index)
+                                            ? 'bg-primary border-primary'
+                                            : 'border-text-secondary'
                                     }`}>
-                                        {selectedGeneratedTaskIndices.has(idx) && (
-                                            <div className="w-2 h-2 bg-[#0A0A0A]" />
-                                        )}
+                                        {selectedGeneratedTaskIndices.has(index) && <Check className="h-3 w-3 text-bg-dark" />}
                                     </div>
-                                    <div className="flex-1">
-                                        <div className="flex justify-between items-start">
-                                            <h4 className={`font-bold font-sans text-sm ${
-                                                selectedGeneratedTaskIndices.has(idx) ? 'text-[#C9A962]' : 'text-white'
-                                            }`}>{task.title}</h4>
-                                            <span className="text-xs font-mono text-gray-500 uppercase">${task.cost}</span>
-                                        </div>
-                                        <p className="text-xs text-gray-400 mt-1 font-mono">{task.description}</p>
-                                        <div className="mt-2 inline-block px-2 py-0.5 bg-[#333333] text-gray-300 text-[10px] font-mono uppercase tracking-wider rounded">
-                                            {task.priority}
+                                    <div>
+                                        <h4 className="font-bold text-text-primary font-sans text-sm uppercase">{task.title}</h4>
+                                        <p className="text-xs text-text-secondary font-mono mt-1">{task.description}</p>
+                                        <div className="flex gap-3 mt-2">
+                                            <span className="text-[10px] font-bold text-primary uppercase border border-primary/30 px-1.5 py-0.5">{task.priority}</span>
+                                            <span className="text-[10px] font-bold text-text-secondary uppercase border border-border px-1.5 py-0.5">${task.cost}</span>
+                                            <span className="text-[10px] font-bold text-text-secondary uppercase border border-border px-1.5 py-0.5">{new Date(task.due_date).toLocaleDateString()}</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         ))}
                     </div>
-                    <div className="flex justify-end gap-3 pt-4 border-t border-[#333333]">
+                    <div className="flex justify-end gap-3 pt-4 border-t border-border">
                         <button
                             onClick={() => setShowGeneratedTasksModal(false)}
-                            className="px-4 py-2 text-gray-400 hover:text-white font-mono text-xs uppercase tracking-wider font-bold transition-colors"
+                            className="px-4 py-2 text-text-secondary hover:text-text-primary font-mono text-sm font-bold uppercase"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleAddGeneratedTasks}
-                            disabled={selectedGeneratedTaskIndices.size === 0}
-                            className="px-6 py-2 bg-[#C9A962] text-[#0A0A0A] hover:bg-[#b09355] font-mono text-xs uppercase tracking-wider font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-6 py-2 bg-primary text-bg-dark hover:bg-primary/90 font-mono text-sm font-bold uppercase tracking-wider"
                         >
                             Add Selected ({selectedGeneratedTaskIndices.size})
                         </button>
                     </div>
                 </div>
             </Modal>
-
-            {id && project && (
-                <CreateTaskModal
-                    isOpen={createTaskModalOpen}
-                    onClose={closeTaskModal}
-                    projectId={id}
-                    members={project.members || []}
-                    onSuccess={() => {
-                        loadTasks()
-                        loadProject()
-                    }}
-                    taskToEdit={taskToEdit}
-                />
-            )}
-
-            {project && (
-                <CreateProjectModal
-                    isOpen={editProjectModalOpen}
-                    onClose={() => setEditProjectModalOpen(false)}
-                    onSuccess={loadProject}
-                    projectToEdit={project}
-                />
-            )}
             
-            {/* Delete Project Confirmation Modal */}
-            <Modal isOpen={deleteProjectModalOpen} onClose={() => setDeleteProjectModalOpen(false)} title="Delete Project">
+            {/* Delete Project Modal */}
+            <Modal
+                isOpen={deleteProjectModalOpen}
+                onClose={() => setDeleteProjectModalOpen(false)}
+                title="Delete Project"
+            >
                 <div className="space-y-4">
-                    <p className="text-gray-300 font-mono">Are you sure you want to delete this project? This action cannot be undone.</p>
-                    <div className="flex gap-3 justify-end">
-                         <button
+                    <p className="text-text-secondary font-mono text-sm">
+                        Are you sure you want to delete <span className="text-text-primary font-bold">{project.name}</span>? 
+                        This action cannot be undone and all tasks will be deleted.
+                    </p>
+                    <div className="flex justify-end gap-3 pt-4">
+                        <button
                             onClick={() => setDeleteProjectModalOpen(false)}
-                            className="px-4 py-2 border border-[#333333] text-white hover:bg-[#333333] transition-colors font-mono uppercase text-xs tracking-wider font-bold"
+                            className="px-4 py-2 text-text-secondary hover:text-text-primary font-mono text-sm font-bold uppercase"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleDeleteProject}
-                            className="px-4 py-2 bg-red-900/50 border border-red-900 text-red-400 hover:bg-red-900 hover:text-white transition-colors font-mono uppercase text-xs tracking-wider font-bold"
+                            className="px-6 py-2 bg-red-600 text-white hover:bg-red-700 font-mono text-sm font-bold uppercase tracking-wider"
                         >
                             Delete Project
                         </button>
                     </div>
                 </div>
             </Modal>
-            
-            {/* Delete Task Confirmation Modal */}
-            <Modal isOpen={!!taskToDelete} onClose={() => setTaskToDelete(null)} title="Delete Task">
-                 <div className="space-y-4">
-                    <p className="text-gray-300 font-mono">Are you sure you want to delete this task?</p>
-                    <div className="flex gap-3 justify-end">
-                         <button
+
+            {/* Delete Task Confirmation */}
+            <Modal
+                isOpen={!!taskToDelete}
+                onClose={() => setTaskToDelete(null)}
+                title="Delete Task"
+            >
+                <div className="space-y-4">
+                    <p className="text-text-secondary font-mono text-sm">
+                        Are you sure you want to delete this task? This action cannot be undone.
+                    </p>
+                    <div className="flex justify-end gap-3 pt-4">
+                        <button
                             onClick={() => setTaskToDelete(null)}
-                            className="px-4 py-2 border border-[#333333] text-white hover:bg-[#333333] transition-colors font-mono uppercase text-xs tracking-wider font-bold"
+                            className="px-4 py-2 text-text-secondary hover:text-text-primary font-mono text-sm font-bold uppercase"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={() => taskToDelete && handleDeleteTask(taskToDelete)}
-                            className="px-4 py-2 bg-red-900/50 border border-red-900 text-red-400 hover:bg-red-900 hover:text-white transition-colors font-mono uppercase text-xs tracking-wider font-bold"
+                            className="px-6 py-2 bg-red-600 text-white hover:bg-red-700 font-mono text-sm font-bold uppercase tracking-wider"
                         >
                             Delete Task
                         </button>
@@ -784,20 +794,26 @@ export default function ProjectDetail() {
                 </div>
             </Modal>
 
-             {/* Remove Member Confirmation Modal */}
-             <Modal isOpen={!!memberToRemove} onClose={() => setMemberToRemove(null)} title="Remove Member">
-                 <div className="space-y-4">
-                    <p className="text-gray-300 font-mono">Are you sure you want to remove this member from the team?</p>
-                    <div className="flex gap-3 justify-end">
-                         <button
+            {/* Remove Member Confirmation */}
+            <Modal
+                isOpen={!!memberToRemove}
+                onClose={() => setMemberToRemove(null)}
+                title="Remove Member"
+            >
+                <div className="space-y-4">
+                    <p className="text-text-secondary font-mono text-sm">
+                        Are you sure you want to remove this member from the project?
+                    </p>
+                    <div className="flex justify-end gap-3 pt-4">
+                        <button
                             onClick={() => setMemberToRemove(null)}
-                            className="px-4 py-2 border border-[#333333] text-white hover:bg-[#333333] transition-colors font-mono uppercase text-xs tracking-wider font-bold"
+                            className="px-4 py-2 text-text-secondary hover:text-text-primary font-mono text-sm font-bold uppercase"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={() => memberToRemove && handleRemoveMember(memberToRemove)}
-                            className="px-4 py-2 bg-red-900/50 border border-red-900 text-red-400 hover:bg-red-900 hover:text-white transition-colors font-mono uppercase text-xs tracking-wider font-bold"
+                            className="px-6 py-2 bg-red-600 text-white hover:bg-red-700 font-mono text-sm font-bold uppercase tracking-wider"
                         >
                             Remove Member
                         </button>
@@ -806,34 +822,39 @@ export default function ProjectDetail() {
             </Modal>
 
             {/* Edit Member Role Modal */}
-            <Modal isOpen={editMemberModalOpen} onClose={() => setEditMemberModalOpen(false)} title="Edit Member Role">
-                <div className="space-y-6">
-                    <div>
-                        <label className="block text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">
-                            Select Role
-                        </label>
+            <Modal
+                isOpen={editMemberModalOpen}
+                onClose={() => {
+                    setEditMemberModalOpen(false)
+                    setMemberToEdit(null)
+                }}
+                title="Edit Member Role"
+            >
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <label className="text-sm font-bold text-text-primary font-mono uppercase">Role</label>
                         <select
                             value={newRole}
                             onChange={(e) => setNewRole(e.target.value as 'admin' | 'member')}
-                            className="w-full bg-[#0A0A0A] border border-[#333333] text-white px-4 py-2 focus:outline-none focus:border-[#C9A962] font-mono text-sm"
+                            className="w-full bg-bg-dark border border-border text-text-primary p-3 font-mono text-sm focus:outline-none focus:border-primary"
                         >
                             <option value="member">Member</option>
                             <option value="admin">Admin</option>
                         </select>
-                        <p className="text-xs text-gray-500 mt-2 font-mono">
-                            Admins can manage tasks and view project settings. Members can only view and complete assigned tasks.
-                        </p>
                     </div>
-                    <div className="flex gap-3 justify-end">
+                    <div className="flex justify-end gap-3 pt-4">
                         <button
-                            onClick={() => setEditMemberModalOpen(false)}
-                            className="px-4 py-2 border border-[#333333] text-white hover:bg-[#333333] transition-colors font-mono uppercase text-xs tracking-wider font-bold"
+                            onClick={() => {
+                                setEditMemberModalOpen(false)
+                                setMemberToEdit(null)
+                            }}
+                            className="px-4 py-2 text-text-secondary hover:text-text-primary font-mono text-sm font-bold uppercase"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleUpdateMemberRole}
-                            className="px-4 py-2 bg-[#C9A962] text-[#0A0A0A] hover:bg-[#b09355] transition-colors font-mono uppercase text-xs tracking-wider font-bold"
+                            className="px-6 py-2 bg-primary text-bg-dark hover:bg-primary/90 font-mono text-sm font-bold uppercase tracking-wider"
                         >
                             Update Role
                         </button>
@@ -841,14 +862,35 @@ export default function ProjectDetail() {
                 </div>
             </Modal>
 
-            <SwapTaskModal 
+            {/* Edit Project Modal - Placeholder */}
+            <Modal
+                isOpen={editProjectModalOpen}
+                onClose={() => setEditProjectModalOpen(false)}
+                title="Edit Project"
+            >
+                <div className="space-y-4">
+                    <p className="text-text-secondary font-mono text-sm">
+                        Edit project functionality is coming soon.
+                    </p>
+                    <div className="flex justify-end gap-3 pt-4">
+                        <button
+                            onClick={() => setEditProjectModalOpen(false)}
+                            className="px-6 py-2 bg-primary text-bg-dark hover:bg-primary/90 font-mono text-sm font-bold uppercase tracking-wider"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+
+            <SwapTaskModal
                 isOpen={swapModalOpen}
                 onClose={() => {
                     setSwapModalOpen(false)
                     setTaskToSwap(null)
                 }}
                 task={taskToSwap}
-                members={activeMembers}
+                members={project?.members || []}
                 onAssign={handleAssignTask}
             />
         </div>

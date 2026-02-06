@@ -9,17 +9,17 @@ import { InviteTeamModal } from '../projects/InviteTeamModal'
 const getStatusColor = (status: ProjectStatus) => {
     switch (status) {
         case 'Active':
-            return 'bg-primary text-black border-transparent'
+            return 'bg-primary text-bg-dark border-transparent'
         case 'Recent':
-            return 'bg-[#333333] text-white border-transparent'
+            return 'bg-border text-text-primary border-transparent'
         case 'Idle':
-            return 'bg-[#333333] text-gray-400 border-transparent'
+            return 'bg-border text-text-secondary border-transparent'
         case 'Completed':
-            return 'bg-white text-black border-transparent'
+            return 'bg-text-primary text-bg-dark border-transparent'
         case 'Archived':
-            return 'bg-transparent text-gray-500 border border-[#333333]'
+            return 'bg-transparent text-text-secondary border border-border'
         default:
-            return 'bg-[#333333] text-white border-transparent'
+            return 'bg-border text-text-primary border-transparent'
     }
 }
 
@@ -89,24 +89,24 @@ export function ProjectsTable() {
 
     if (loading) {
         return (
-            <div className="bg-[#0A0A0A] rounded-none border border-[#333333] p-12 text-center">
+            <div className="bg-bg-dark rounded-none border border-border p-12 text-center">
                 <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
-                <p className="mt-4 text-gray-400 font-mono">Loading projects...</p>
+                <p className="mt-4 text-text-secondary font-mono">Loading projects...</p>
             </div>
         )
     }
 
     return (
         <>
-            <div className="bg-[#0A0A0A] rounded-none border border-[#333333] overflow-hidden relative">
+            <div className="bg-bg-dark rounded-none border border-border overflow-hidden relative">
                  <div className="absolute top-4 left-4 text-xs font-mono text-primary opacity-50 z-10">07</div>
                 
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-[#333333] flex items-center justify-between pl-12">
-                    <h2 className="text-lg font-semibold text-white uppercase tracking-wider font-sans">Projects</h2>
+                <div className="px-6 py-4 border-b border-border flex items-center justify-between pl-12">
+                    <h2 className="text-lg font-semibold text-text-primary uppercase tracking-wider font-sans">Projects</h2>
                     <button
                         onClick={() => setCreateModalOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-none hover:bg-gray-200 transition-colors text-sm font-medium uppercase tracking-wider font-mono"
+                        className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-none hover:bg-primary/90 transition-colors text-sm font-medium uppercase tracking-wider font-mono"
                     >
                         <Plus className="h-4 w-4" />
                         New Project
@@ -117,41 +117,41 @@ export function ProjectsTable() {
                 {projects.length > 0 ? (
                     <div className="overflow-x-auto w-full touch-pan-x">
                         <table className="w-full">
-                            <thead className="bg-primary border-b border-[#333333]">
+                            <thead className="bg-primary border-b border-border">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider font-mono">
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider font-mono">
                                         Project
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider font-mono">
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider font-mono">
                                         Status
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider font-mono">
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider font-mono">
                                         Created Date
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider font-mono">
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider font-mono">
                                         Last Activity
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider font-mono">
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider font-mono">
                                         Progress
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider font-mono">
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider font-mono">
                                         Team
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider font-mono">
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider font-mono">
                                         Action
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-[#0A0A0A] divide-y divide-[#333333]">
+                            <tbody className="bg-bg-dark divide-y divide-border">
                                 {projects.map((project) => (
-                                    <tr key={project.id} className="hover:bg-[#333333] transition-colors group">
+                                    <tr key={project.id} className="hover:bg-primary/5 transition-colors group">
                                         {/* Project Name */}
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-white font-sans">
+                                            <div className="text-sm font-medium text-text-primary font-sans">
                                                 {project.name}
                                             </div>
                                             {project.description && (
-                                                <div className="text-xs text-gray-500 truncate max-w-xs font-mono">
+                                                <div className="text-xs text-text-secondary truncate max-w-xs font-mono">
                                                     {project.description}
                                                 </div>
                                             )}
@@ -169,19 +169,19 @@ export function ProjectsTable() {
                                         </td>
 
                                         {/* Created Date */}
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-mono">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary font-mono">
                                             {new Date(project.created_at).toLocaleDateString()}
                                         </td>
 
                                         {/* Last Activity */}
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-mono">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary font-mono">
                                             {new Date(project.updated_at).toLocaleDateString()}
                                         </td>
 
                                         {/* Progress */}
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-2">
-                                                <div className="flex-1 bg-[#333333] rounded-none h-1 max-w-[120px]">
+                                                <div className="flex-1 bg-border rounded-none h-1 max-w-[120px]">
                                                     <div
                                                         className={`h-1 rounded-none ${getProgressColor(
                                                             project.progress || 0
@@ -189,7 +189,7 @@ export function ProjectsTable() {
                                                         style={{ width: `${project.progress || 0}%` }}
                                                     />
                                                 </div>
-                                                <span className="text-xs text-gray-400 font-mono">{project.progress || 0}%</span>
+                                                <span className="text-xs text-text-secondary font-mono">{project.progress || 0}%</span>
                                             </div>
                                         </td>
 
@@ -199,15 +199,15 @@ export function ProjectsTable() {
                                                 {project.members && project.members.slice(0, 4).map((member) => (
                                                     <div
                                                         key={member.id}
-                                                        className="w-8 h-8 rounded-none border border-[#0A0A0A] bg-[#333333] flex items-center justify-center text-white text-xs font-mono"
+                                                        className="w-8 h-8 rounded-none border border-bg-dark bg-primary flex items-center justify-center text-bg-dark text-xs font-mono font-bold"
                                                         title={member.profiles?.email || 'User'}
                                                     >
                                                         {member.profiles?.email?.charAt(0).toUpperCase() || '?'}
                                                     </div>
                                                 ))}
                                                 {project.members && project.members.length > 4 && (
-                                                    <div className="w-8 h-8 rounded-none border border-[#0A0A0A] bg-[#333333] flex items-center justify-center">
-                                                        <span className="text-xs font-medium text-gray-400 font-mono">
+                                                    <div className="w-8 h-8 rounded-none border border-bg-dark bg-border flex items-center justify-center">
+                                                        <span className="text-xs font-medium text-text-secondary font-mono">
                                                             +{project.members.length - 4}
                                                         </span>
                                                     </div>
@@ -221,7 +221,7 @@ export function ProjectsTable() {
                                                 onClick={() =>
                                                     setOpenMenuId(openMenuId === project.id ? null : project.id)
                                                 }
-                                                className="text-gray-400 hover:text-white transition-colors"
+                                                className="text-text-secondary hover:text-text-primary transition-colors"
                                             >
                                                 <MoreVertical className="h-5 w-5" />
                                             </button>
@@ -236,22 +236,22 @@ export function ProjectsTable() {
                                                     />
 
                                                     {/* Menu */}
-                                                    <div className="absolute right-0 mt-2 w-40 bg-[#0A0A0A] rounded-none shadow-lg border border-[#333333] py-1 z-20">
+                                                    <div className="absolute right-0 mt-2 w-40 bg-bg-dark rounded-none shadow-lg border border-border py-1 z-20">
                                                         <button
                                                             onClick={() => handleAction(project.id, 'open')}
-                                                            className="w-full px-4 py-2 text-left text-sm text-white hover:bg-[#333333] transition-colors font-mono uppercase tracking-wider"
+                                                            className="w-full px-4 py-2 text-left text-sm text-text-primary hover:bg-border transition-colors font-mono uppercase tracking-wider"
                                                         >
                                                             Open
                                                         </button>
                                                         <button
                                                             onClick={() => handleAction(project.id, 'manage')}
-                                                            className="w-full px-4 py-2 text-left text-sm text-white hover:bg-[#333333] transition-colors font-mono uppercase tracking-wider"
+                                                            className="w-full px-4 py-2 text-left text-sm text-text-primary hover:bg-border transition-colors font-mono uppercase tracking-wider"
                                                         >
                                                             Manage Team
                                                         </button>
                                                         <button
                                                             onClick={() => handleAction(project.id, 'remove')}
-                                                            className="w-full px-4 py-2 text-left text-sm text-accent-red hover:bg-[#333333] transition-colors font-mono uppercase tracking-wider"
+                                                            className="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-border transition-colors font-mono uppercase tracking-wider"
                                                         >
                                                             Remove
                                                         </button>
@@ -266,10 +266,10 @@ export function ProjectsTable() {
                     </div>
                 ) : (
                     <div className="px-6 py-12 text-center">
-                        <p className="text-gray-500 mb-4 font-mono">No projects yet</p>
+                        <p className="text-text-secondary mb-4 font-mono">No projects yet</p>
                         <button
                             onClick={() => setCreateModalOpen(true)}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-white text-black rounded-none hover:bg-gray-200 transition-colors text-sm font-medium uppercase tracking-wider font-mono"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-text-primary text-bg-dark rounded-none hover:bg-text-primary/90 transition-colors text-sm font-medium uppercase tracking-wider font-mono"
                         >
                             <Plus className="h-4 w-4" />
                             Create Your First Project

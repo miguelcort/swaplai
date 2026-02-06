@@ -122,19 +122,19 @@ export default function Projects() {
     }
 
     return (
-        <div className="flex flex-col h-full bg-[#0A0A0A] font-sans">
-            <div className="bg-[#0A0A0A] border-b border-[#333333] px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex flex-col h-full bg-bg-dark font-sans">
+            <div className="bg-bg-dark border-b border-border px-4 sm:px-6 lg:px-8 py-6">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-xl md:text-2xl font-bold text-white font-serif tracking-tight">Projects</h1>
-                        <p className="text-sm text-gray-400 mt-1 font-mono uppercase tracking-wider">
+                        <h1 className="text-xl md:text-2xl font-bold text-primary font-serif tracking-tight">Projects</h1>
+                        <p className="text-sm text-text-secondary mt-1 font-mono uppercase tracking-wider">
                             View all your projects and create tasks for each one.
                         </p>
                     </div>
                     <div className="flex items-center gap-4">
                         <button
                             onClick={handleCreateProject}
-                            className="flex items-center gap-2 px-4 py-2 bg-[#C9A962] text-[#0A0A0A] hover:bg-[#b09355] transition-colors font-mono uppercase text-xs tracking-wider font-bold"
+                            className="flex items-center gap-2 px-4 py-2 bg-primary text-bg-dark hover:bg-primary/90 transition-colors font-mono uppercase text-xs tracking-wider font-bold"
                         >
                             <Plus className="h-4 w-4" />
                             New Project
@@ -154,19 +154,19 @@ export default function Projects() {
                         )}
 
                         {loading ? (
-                            <div className="bg-[#0A0A0A] rounded-none border border-[#333333] p-12 text-center">
+                            <div className="bg-bg-dark rounded-none border border-border p-12 text-center">
                                 <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
-                                <p className="mt-4 text-gray-400 font-mono">Loading projects...</p>
+                                <p className="mt-4 text-text-secondary font-mono">Loading projects...</p>
                             </div>
                         ) : projects.length === 0 ? (
-                            <div className="bg-[#0A0A0A] rounded-none border border-[#333333] p-12 text-center">
-                                <h2 className="text-lg font-semibold text-white mb-2 font-sans">No projects yet</h2>
-                                <p className="text-gray-500 mb-6 font-mono">
+                            <div className="bg-bg-dark rounded-none border border-border p-12 text-center">
+                                <h2 className="text-lg font-semibold text-text-primary mb-2 font-sans">No projects yet</h2>
+                                <p className="text-text-secondary mb-6 font-mono">
                                     Create your first project to start adding tasks.
                                 </p>
                                 <button
                                     onClick={handleCreateProject}
-                                    className="mt-4 inline-flex items-center gap-2 px-6 py-3 bg-[#C9A962] text-[#0A0A0A] hover:bg-[#b09355] transition-colors font-mono uppercase text-xs tracking-wider font-bold"
+                                    className="mt-4 inline-flex items-center gap-2 px-6 py-3 bg-primary text-bg-dark hover:bg-primary/90 transition-colors font-mono uppercase text-xs tracking-wider font-bold"
                                 >
                                     <Plus className="h-4 w-4" />
                                     Create Project
@@ -177,24 +177,24 @@ export default function Projects() {
                                 {projects.map((project) => (
                                     <div
                                         key={project.id}
-                                        className="bg-[#0A0A0A] rounded-none border border-[#333333] p-5 flex flex-col justify-between hover:border-[#C9A962] transition-colors group relative cursor-pointer"
+                                        className="bg-bg-dark rounded-none border border-border p-5 flex flex-col justify-between hover:border-primary transition-colors group relative cursor-pointer"
                                         onClick={() => navigate(`/projects/${project.id}`)}
                                     >
                                         <div className="absolute top-3 right-3 flex items-center gap-2">
-                                            <div className="text-xs font-mono text-[#C9A962] opacity-50 uppercase tracking-wider">
+                                            <div className="text-xs font-mono text-primary opacity-50 uppercase tracking-wider">
                                                 {(project.status || '').toUpperCase()}
                                             </div>
                                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button
                                                     onClick={(e) => handleEditProject(project, e)}
-                                                    className="p-1.5 text-gray-500 hover:text-white transition-colors"
+                                                    className="p-1.5 text-text-secondary hover:text-text-primary transition-colors"
                                                     title="Edit Project"
                                                 >
                                                     <Edit2 className="h-4 w-4" />
                                                 </button>
                                                 <button
                                                     onClick={(e) => handleDeleteClick(project, e)}
-                                                    className="p-1.5 text-gray-500 hover:text-red-500 transition-colors"
+                                                    className="p-1.5 text-text-secondary hover:text-red-500 transition-colors"
                                                     title="Delete Project"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
@@ -203,9 +203,9 @@ export default function Projects() {
                                         </div>
 
                                         <div>
-                                            <h2 className="text-lg font-bold text-white font-sans uppercase tracking-wide pr-16 truncate">{project.name}</h2>
+                                            <h2 className="text-lg font-bold text-text-primary font-sans uppercase tracking-wide pr-16 truncate">{project.name}</h2>
                                             {project.description && (
-                                                <p className="text-sm text-gray-400 mt-2 line-clamp-2 font-mono h-10">
+                                                <p className="text-sm text-text-secondary mt-2 line-clamp-2 font-mono h-10">
                                                     {project.description}
                                                 </p>
                                             )}
@@ -217,13 +217,13 @@ export default function Projects() {
                                                     e.stopPropagation()
                                                     navigate(`/projects/${project.id}`)
                                                 }}
-                                                className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-[#333333] text-sm font-medium text-white rounded-none hover:bg-[#333333] transition-colors font-mono uppercase tracking-wider"
+                                                className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-border text-sm font-medium text-text-primary rounded-none hover:bg-primary/5 transition-colors font-mono uppercase tracking-wider"
                                             >
                                                 Details
                                             </button>
                                             <button
                                                 onClick={(e) => handleCreateTaskClick(project, e)}
-                                                className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-[#C9A962] text-sm font-medium text-[#0A0A0A] rounded-none hover:bg-[#b09355] transition-colors font-mono uppercase tracking-wider font-bold"
+                                                className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-primary text-sm font-medium text-bg-dark rounded-none hover:bg-primary/90 transition-colors font-mono uppercase tracking-wider font-bold"
                                             >
                                                 Add task
                                             </button>
@@ -235,24 +235,24 @@ export default function Projects() {
                     </div>
 
                     {!loading && (
-                        <div className="grid md:grid-cols-2 gap-8 pt-8 border-t border-[#333333]">
+                        <div className="grid md:grid-cols-2 gap-8 pt-8 border-t border-border">
                             {/* Healthy Habits */}
                             <div className="space-y-4">
-                                <h3 className="text-lg font-bold text-white font-serif tracking-tight flex items-center gap-2">
-                                    <span className="text-[#C9A962]">✦</span> Healthy Habits Templates
+                                <h3 className="text-lg font-bold text-text-primary font-serif tracking-tight flex items-center gap-2">
+                                    <span className="text-primary">✦</span> Healthy Habits Templates
                                 </h3>
                                 <div className="space-y-3">
                                     {HABIT_TEMPLATES.map((template, idx) => (
                                         <div 
                                             key={idx}
                                             onClick={() => handleUseTemplate(template)}
-                                            className="group bg-[#0A0A0A] border border-[#333333] p-4 hover:border-[#C9A962] transition-all cursor-pointer"
+                                            className="group bg-bg-dark border border-border p-4 hover:border-primary transition-all cursor-pointer"
                                         >
                                             <div className="flex justify-between items-start mb-2">
-                                                <h4 className="font-bold text-white group-hover:text-[#C9A962] transition-colors">{template.name}</h4>
-                                                <Copy className="h-4 w-4 text-gray-500 group-hover:text-[#C9A962]" />
+                                                <h4 className="font-bold text-text-primary group-hover:text-primary transition-colors">{template.name}</h4>
+                                                <Copy className="h-4 w-4 text-text-secondary group-hover:text-primary" />
                                             </div>
-                                            <p className="text-sm text-gray-400 font-mono line-clamp-2">{template.description}</p>
+                                            <p className="text-sm text-text-secondary font-mono line-clamp-2">{template.description}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -260,21 +260,21 @@ export default function Projects() {
 
                             {/* Successful People */}
                             <div className="space-y-4">
-                                <h3 className="text-lg font-bold text-white font-serif tracking-tight flex items-center gap-2">
-                                    <span className="text-[#C9A962]">✦</span> Successful People Routines
+                                <h3 className="text-lg font-bold text-text-primary font-serif tracking-tight flex items-center gap-2">
+                                    <span className="text-primary">✦</span> Successful People Routines
                                 </h3>
                                 <div className="space-y-3">
                                     {SUCCESS_TEMPLATES.map((template, idx) => (
                                         <div 
                                             key={idx}
                                             onClick={() => handleUseTemplate(template)}
-                                            className="group bg-[#0A0A0A] border border-[#333333] p-4 hover:border-[#C9A962] transition-all cursor-pointer"
+                                            className="group bg-bg-dark border border-border p-4 hover:border-primary transition-all cursor-pointer"
                                         >
                                             <div className="flex justify-between items-start mb-2">
-                                                <h4 className="font-bold text-white group-hover:text-[#C9A962] transition-colors">{template.name}</h4>
-                                                <Copy className="h-4 w-4 text-gray-500 group-hover:text-[#C9A962]" />
+                                                <h4 className="font-bold text-text-primary group-hover:text-primary transition-colors">{template.name}</h4>
+                                                <Copy className="h-4 w-4 text-text-secondary group-hover:text-primary" />
                                             </div>
-                                            <p className="text-sm text-gray-400 font-mono line-clamp-2">{template.description}</p>
+                                            <p className="text-sm text-text-secondary font-mono line-clamp-2">{template.description}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -312,14 +312,14 @@ export default function Projects() {
             {/* Delete Project Confirmation Modal */}
             <Modal isOpen={!!projectToDelete} onClose={() => setProjectToDelete(null)} title="Delete Project">
                 <div className="space-y-4">
-                    <p className="text-gray-300 font-mono">
-                        Are you sure you want to delete <span className="text-white font-bold">{projectToDelete?.name}</span>?
+                    <p className="text-text-secondary font-mono">
+                        Are you sure you want to delete <span className="text-text-primary font-bold">{projectToDelete?.name}</span>?
                         <br/>This action cannot be undone.
                     </p>
                     <div className="flex gap-3 justify-end">
                         <button
                             onClick={() => setProjectToDelete(null)}
-                            className="px-4 py-2 border border-[#333333] text-white hover:bg-[#333333] transition-colors font-mono uppercase text-xs tracking-wider font-bold"
+                            className="px-4 py-2 border border-border text-text-primary hover:bg-primary/5 transition-colors font-mono uppercase text-xs tracking-wider font-bold"
                         >
                             Cancel
                         </button>

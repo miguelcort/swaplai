@@ -18,7 +18,8 @@ export default function Chat() {
         setActiveConversation,
         conversations,
         loadConversations,
-        startNewChat
+        startNewChat,
+        deleteConversation
     } = useChatStore()
 
     // Load conversations on mount
@@ -43,6 +44,12 @@ export default function Chat() {
         navigate('/chat')
     }
 
+    const handleDeleteConversation = async (id: string) => {
+        if (confirm('Are you sure you want to delete this chat?')) {
+            await deleteConversation(id)
+        }
+    }
+
     const activeConversation = conversations.find(c => c.id === activeConversationId)
 
     return (
@@ -60,9 +67,10 @@ export default function Chat() {
                     activeId={activeConversationId}
                     onSelect={(cid) => navigate(`/chat/${cid}`)}
                     onNew={handleNewChat}
+                    onDelete={handleDeleteConversation}
                 />
 
-                <div className="flex-1 flex flex-col bg-[#0A0A0A] overflow-hidden">
+                <div className="flex-1 flex flex-col bg-bg-dark overflow-hidden">
                     <div className="flex-1 overflow-hidden flex flex-col relative">
                         <MessageList messages={messages} />
                     </div>

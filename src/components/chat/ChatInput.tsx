@@ -37,8 +37,8 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
     }, [input])
 
     return (
-        <div className="relative flex items-end gap-2 p-4 bg-[#0A0A0A] border-t border-[#333333]">
-            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white rounded-none hover:bg-[#333333]">
+        <div className="relative flex items-end gap-2 p-4 bg-bg-dark border-t border-border">
+            <Button variant="ghost" size="icon" className="text-text-secondary hover:text-text-primary rounded-none hover:bg-border">
                 <Paperclip className="h-5 w-5" />
             </Button>
 
@@ -51,14 +51,14 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
                     onKeyDown={handleKeyDown}
                     disabled={disabled}
                     placeholder="Type your command..."
-                    className="w-full resize-none rounded-none border border-[#333333] bg-[#0A0A0A] px-4 py-[9px] text-sm text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary max-h-[200px] shadow-none min-h-[40px] placeholder:text-gray-600 font-mono"
+                    className="w-full resize-none rounded-none border border-border bg-bg-dark px-4 py-[9px] text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary max-h-[200px] shadow-none min-h-[40px] placeholder:text-text-secondary font-mono"
                 />
             </div>
 
             <Button
                 onClick={handleSend}
                 disabled={disabled || !input.trim()}
-                className="rounded-none h-10 w-10 p-0 flex items-center justify-center bg-primary hover:bg-primary/90 text-black disabled:bg-[#333333] disabled:text-gray-600 shadow-none transition-all"
+                className="rounded-none h-10 w-10 p-0 flex items-center justify-center bg-primary hover:bg-primary/90 text-black disabled:bg-border disabled:text-text-secondary shadow-none transition-all"
             >
                 <Send className="h-4 w-4" />
             </Button>

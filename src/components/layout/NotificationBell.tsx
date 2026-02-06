@@ -14,11 +14,11 @@ export function NotificationBell() {
     return (
         <button 
             onClick={() => navigate('/notifications')}
-            className="relative p-2 text-gray-400 hover:text-white transition-colors rounded-none hover:bg-[#333333]"
+            className="relative p-2 text-text-secondary hover:text-text-primary transition-colors rounded-none hover:bg-border"
         >
             <Bell className="h-5 w-5" />
             {unreadCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-none bg-accent-red border border-[#0A0A0A]" />
+                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-none bg-accent-red border border-bg-dark" />
             )}
         </button>
     )

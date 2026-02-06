@@ -25,7 +25,7 @@ export function Dialog({ isOpen, onClose, title, description, children, classNam
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="fixed inset-0 bg-black/25 backdrop-blur-sm" />
+                    <div className="fixed inset-0 bg-bg-dark/25 backdrop-blur-sm" />
                 </Transition.Child>
 
                 <div className="fixed inset-0 overflow-y-auto">
@@ -40,16 +40,16 @@ export function Dialog({ isOpen, onClose, title, description, children, classNam
                             leaveTo="opacity-0 scale-95"
                         >
                             <HeadlessDialog.Panel className={cn(
-                                "w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all",
+                                "w-full max-w-md transform overflow-hidden rounded-none border border-border bg-bg-card p-6 text-left align-middle shadow-xl transition-all font-sans",
                                 className
                             )}>
                                 <div className="flex items-center justify-between mb-4">
-                                    <HeadlessDialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+                                    <HeadlessDialog.Title as="h3" className="text-lg font-bold leading-6 text-text-primary uppercase tracking-wide">
                                         {title}
                                     </HeadlessDialog.Title>
                                     <button
                                         onClick={onClose}
-                                        className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-500 transition-colors focus:outline-none"
+                                        className="rounded-none p-1 text-text-secondary hover:bg-border hover:text-text-primary transition-colors focus:outline-none"
                                     >
                                         <X className="h-5 w-5" />
                                     </button>
@@ -57,7 +57,7 @@ export function Dialog({ isOpen, onClose, title, description, children, classNam
 
                                 {description && (
                                     <div className="mb-4">
-                                        <p className="text-sm text-gray-500">
+                                        <p className="text-sm text-text-secondary font-mono">
                                             {description}
                                         </p>
                                     </div>

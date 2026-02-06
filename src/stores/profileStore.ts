@@ -10,6 +10,7 @@ export interface Profile {
     bio: string | null
     preferences: string | null
     website: string | null
+    is_searchable: boolean | null
 }
 
 interface ProfileState {

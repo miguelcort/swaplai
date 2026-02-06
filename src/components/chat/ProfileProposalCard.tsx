@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Check, X, User, Globe, FileText, Save } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Check, X, User, Globe, FileText, Save, Sparkles } from 'lucide-react'
 import { useProfileStore } from '../../stores/profileStore'
 import { toast } from '../../hooks/useToast'
 
@@ -15,44 +15,40 @@ interface ProfileProposalCardProps {
 }
 
 export function ProfileProposalCard({ data, onDismiss }: ProfileProposalCardProps) {
-    const { updateProfile } = useProfileStore()
+    const { updateProfile, profile } = useProfileStore()
     const [isSaving, setIsSaving] = useState(false)
     const [isSaved, setIsSaved] = useState(false)
+    const [shouldShow, setShouldShow] = useState(true)
+
+    // Check if data is already saved in profile
+    useEffect(() => {
+        if (!profile) return
+
+        const isAlreadySaved = Object.entries(data).every(([key, value]) => {
+            // Skip fields that are not in profile or empty
+            if (!value) return true
+            // Loose comparison for strings
+            return profile[key as keyof typeof profile] == value
+        })
+
+        if (isAlreadySaved) {
+            setShouldShow(false)
+        }
+    }, [profile, data])
 
     const handleSave = async () => {
         setIsSaving(true)
         try {
-            // Filter data to only include valid profile fields
-            const validFields = ['first_name', 'last_name', 'bio', 'website', 'preferences', 'avatar_url']
-            const updates = Object.keys(data)
-                .filter(key => validFields.includes(key))
-                .reduce((obj, key) => {
-                    obj[key] = data[key]
-                    return obj
-                }, {} as any)
-
-            if (Object.keys(updates).length === 0) {
-                 toast({
-                    title: "No changes to save",
-                    description: "The proposed data doesn't match any profile fields.",
-                    type: "info"
-                })
-                setIsSaving(false)
-                return
-            }
-
-            await updateProfile(updates)
+            await updateProfile(data)
             setIsSaved(true)
-            toast({
-                title: "Profile Updated",
-                description: "Your profile information has been successfully updated.",
-                type: "success"
-            })
+            setTimeout(() => {
+                onDismiss()
+            }, 2000)
         } catch (error) {
-            console.error('Failed to update profile:', error)
+            console.error('Failed to save profile:', error)
             toast({
-                title: "Update Failed",
-                description: "Failed to update profile information. Please try again.",
+                title: "Error",
+                description: "Failed to update profile. Please try again.",
                 type: "error"
             })
         } finally {
@@ -60,33 +56,35 @@ export function ProfileProposalCard({ data, onDismiss }: ProfileProposalCardProp
         }
     }
 
+    if (!shouldShow && !isSaved) return null
+
     if (isSaved) {
         return (
-            <div className="mt-4 p-4 bg-green-900/10 border border-green-900/30 rounded-none flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-                <div className="h-8 w-8 rounded-full bg-green-900/20 flex items-center justify-center border border-green-900/50">
-                    <Check className="h-4 w-4 text-green-500" />
+            <div className="bg-accent-green/10 border border-accent-green/30 rounded-none p-4 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2">
+                <div className="h-8 w-8 rounded-full bg-accent-green/20 flex items-center justify-center shrink-0">
+                    <Check className="h-4 w-4 text-accent-green" />
                 </div>
                 <div>
-                    <h4 className="text-sm font-bold text-green-500 font-mono uppercase tracking-wide">Update Successful</h4>
-                    <p className="text-xs text-green-400/70 font-mono">Profile information saved to database.</p>
+                    <h4 className="text-accent-green font-bold font-mono text-xs uppercase tracking-wider">Update Successful</h4>
+                    <p className="text-text-secondary text-xs font-mono">Profile information saved to database.</p>
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="mt-4 border border-[#C9A962] bg-[#0A0A0A] rounded-none overflow-hidden animate-in fade-in slide-in-from-top-2 shadow-[0_0_15px_-3px_rgba(201,169,98,0.1)]">
+        <div className="bg-bg-dark border border-primary/30 rounded-none overflow-hidden animate-in fade-in slide-in-from-bottom-2 max-w-md my-4 shadow-lg shadow-black/50">
             {/* Header */}
-            <div className="bg-[#C9A962]/10 border-b border-[#C9A962]/30 px-4 py-3 flex items-center justify-between">
+            <div className="bg-primary/10 border-b border-primary/30 px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-[#C9A962]" />
-                    <span className="text-xs font-bold text-[#C9A962] font-mono uppercase tracking-wider">
+                    <User className="h-4 w-4 text-primary" />
+                    <span className="text-xs font-bold text-primary font-mono uppercase tracking-wider">
                         Profile Update Detected
                     </span>
                 </div>
                 <button 
                     onClick={onDismiss}
-                    className="text-[#C9A962]/60 hover:text-[#C9A962] transition-colors"
+                    className="text-primary/60 hover:text-primary transition-colors"
                 >
                     <X className="h-4 w-4" />
                 </button>
@@ -94,17 +92,17 @@ export function ProfileProposalCard({ data, onDismiss }: ProfileProposalCardProp
 
             {/* Content */}
             <div className="p-4 space-y-3">
-                <p className="text-sm text-gray-400 font-sans mb-4">
+                <p className="text-sm text-text-secondary font-sans mb-4">
                     I've detected new information for your profile. Would you like to save these changes?
                 </p>
 
-                <div className="space-y-2 bg-[#111] p-3 border border-[#333333]">
+                <div className="space-y-2 bg-bg-card p-3 border border-border">
                     {(data.first_name || data.last_name) && (
                         <div className="flex items-start gap-3">
-                            <User className="h-4 w-4 text-gray-500 mt-0.5" />
+                            <User className="h-4 w-4 text-text-secondary mt-0.5" />
                             <div>
-                                <span className="text-xs text-gray-500 font-mono uppercase block">Name</span>
-                                <span className="text-sm text-white font-sans">
+                                <span className="text-xs text-text-secondary font-mono uppercase block">Name</span>
+                                <span className="text-sm text-text-primary font-sans">
                                     {[data.first_name, data.last_name].filter(Boolean).join(' ')}
                                 </span>
                             </div>
@@ -112,21 +110,31 @@ export function ProfileProposalCard({ data, onDismiss }: ProfileProposalCardProp
                     )}
                     
                     {data.bio && (
-                        <div className="flex items-start gap-3 pt-2 border-t border-[#333333]/50">
-                            <FileText className="h-4 w-4 text-gray-500 mt-0.5" />
+                        <div className="flex items-start gap-3 pt-2 border-t border-border/50">
+                            <FileText className="h-4 w-4 text-text-secondary mt-0.5" />
                             <div>
-                                <span className="text-xs text-gray-500 font-mono uppercase block">Bio</span>
-                                <span className="text-sm text-white font-sans line-clamp-2">{data.bio}</span>
+                                <span className="text-xs text-text-secondary font-mono uppercase block">Bio</span>
+                                <span className="text-sm text-text-primary font-sans line-clamp-2">{data.bio}</span>
                             </div>
                         </div>
                     )}
 
                     {data.website && (
-                        <div className="flex items-start gap-3 pt-2 border-t border-[#333333]/50">
-                            <Globe className="h-4 w-4 text-gray-500 mt-0.5" />
+                        <div className="flex items-start gap-3 pt-2 border-t border-border/50">
+                            <Globe className="h-4 w-4 text-text-secondary mt-0.5" />
                             <div>
-                                <span className="text-xs text-gray-500 font-mono uppercase block">Website</span>
-                                <span className="text-sm text-white font-sans break-all">{data.website}</span>
+                                <span className="text-xs text-text-secondary font-mono uppercase block">Website</span>
+                                <span className="text-sm text-text-primary font-sans break-all">{data.website}</span>
+                            </div>
+                        </div>
+                    )}
+
+                    {data.preferences && (
+                        <div className="flex items-start gap-3 pt-2 border-t border-border/50">
+                            <Sparkles className="h-4 w-4 text-primary mt-0.5" />
+                            <div>
+                                <span className="text-xs text-primary font-mono uppercase block">AI Agent Preferences (Gustos)</span>
+                                <span className="text-sm text-text-primary font-sans italic">{data.preferences}</span>
                             </div>
                         </div>
                     )}
@@ -134,10 +142,10 @@ export function ProfileProposalCard({ data, onDismiss }: ProfileProposalCardProp
             </div>
 
             {/* Actions */}
-            <div className="px-4 py-3 bg-[#111] border-t border-[#333333] flex justify-end gap-3">
+            <div className="px-4 py-3 bg-bg-card border-t border-border flex justify-end gap-3">
                 <button
                     onClick={onDismiss}
-                    className="px-3 py-1.5 text-xs font-mono text-gray-400 hover:text-white transition-colors"
+                    className="px-3 py-1.5 text-xs font-mono text-text-secondary hover:text-text-primary transition-colors"
                     disabled={isSaving}
                 >
                     DISMISS
@@ -145,7 +153,7 @@ export function ProfileProposalCard({ data, onDismiss }: ProfileProposalCardProp
                 <button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="flex items-center gap-2 px-4 py-1.5 bg-[#C9A962] hover:bg-[#b09355] text-black text-xs font-bold font-mono uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center gap-2 px-4 py-1.5 bg-primary hover:bg-primary/90 text-black text-xs font-bold font-mono uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {isSaving ? (
                         <>

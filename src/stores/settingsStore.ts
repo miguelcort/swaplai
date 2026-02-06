@@ -9,12 +9,18 @@ interface NotificationSettings {
 
 interface SettingsState {
     notifications: NotificationSettings
-    theme: 'light' | 'dark' | 'system'
+    theme: 'light' | 'dark' | 'system' | 'custom'
     language: 'en' | 'es'
+    customColors?: {
+        background: string
+        primary: string
+        text: string
+    }
 
     toggleNotification: (key: keyof NotificationSettings) => void
-    setTheme: (theme: 'light' | 'dark' | 'system') => void
+    setTheme: (theme: 'light' | 'dark' | 'system' | 'custom') => void
     setLanguage: (lang: 'en' | 'es') => void
+    setCustomColors: (colors: { background: string; primary: string; text: string }) => void
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -27,6 +33,11 @@ export const useSettingsStore = create<SettingsState>()(
             },
             theme: 'system',
             language: 'en',
+            customColors: {
+                background: '#0A0A0A',
+                primary: '#C9A962',
+                text: '#FFFFFF'
+            },
 
             toggleNotification: (key) =>
                 set((state) => ({
@@ -37,6 +48,7 @@ export const useSettingsStore = create<SettingsState>()(
                 })),
             setTheme: (theme) => set({ theme }),
             setLanguage: (language) => set({ language }),
+            setCustomColors: (colors) => set({ customColors: colors }),
         }),
         {
             name: 'app-settings', // unique name

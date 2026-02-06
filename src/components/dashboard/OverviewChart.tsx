@@ -30,24 +30,24 @@ export function OverviewChart() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pl-8">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-primary rounded-none">
-                        <svg className="h-5 w-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-5 w-5 text-bg-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
                     </div>
-                    <h3 className="text-lg font-semibold text-white uppercase tracking-wider font-sans">Overview</h3>
+                    <h3 className="text-lg font-semibold text-text-primary uppercase tracking-wider font-sans">Overview</h3>
                 </div>
                 <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
                     <div className="flex items-center gap-2">
                         <div className="w-3 h-3 bg-primary rounded-none"></div>
-                        <span className="text-sm text-gray-400 font-mono">Earnings</span>
+                        <span className="text-sm text-text-secondary font-mono">Earnings</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <select className="px-3 py-1 text-sm border border-[#333333] bg-[#0A0A0A] text-white rounded-none focus:outline-none focus:ring-1 focus:ring-primary font-mono uppercase">
+                        <select className="px-3 py-1 text-sm border border-border bg-bg-dark text-text-primary rounded-none focus:outline-none focus:ring-1 focus:ring-primary font-mono uppercase">
                             <option>This Year</option>
                             <option>Last Year</option>
                             <option>Last 6 Months</option>
                         </select>
-                        <button className="text-gray-400 hover:text-white">
+                        <button className="text-text-secondary hover:text-text-primary">
                             <MoreHorizontal className="h-5 w-5" />
                         </button>
                     </div>
@@ -64,17 +64,17 @@ export function OverviewChart() {
                         <div key={index} className="flex-1 flex flex-col items-center gap-2 group">
                             <div className="relative w-full flex items-end justify-center" style={{ height: '200px' }}>
                                 {isHighlighted && (
-                                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-primary text-black px-2 py-1 rounded-none text-xs font-mono font-medium whitespace-nowrap z-10">
+                                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-primary text-bg-dark px-2 py-1 rounded-none text-xs font-mono font-medium whitespace-nowrap z-10">
                                         ${item.earnings.toLocaleString()}
                                     </div>
                                 )}
                                 <div
-                                    className={`w-full rounded-none transition-all hover:opacity-100 ${isHighlighted ? 'bg-primary' : 'bg-[#333333] opacity-60 hover:bg-primary/50'
+                                    className={`w-full rounded-none transition-all hover:opacity-100 ${isHighlighted ? 'bg-primary' : 'bg-border opacity-60 hover:bg-primary/50'
                                         }`}
                                     style={{ height: `${heightPercentage}%` }}
                                 ></div>
                             </div>
-                            <span className={`text-xs font-mono font-medium ${isHighlighted ? 'text-primary' : 'text-gray-500'}`}>{item.month}</span>
+                            <span className={`text-xs font-mono font-medium ${isHighlighted ? 'text-primary' : 'text-text-secondary'}`}>{item.month}</span>
                         </div>
                     )
                 })}

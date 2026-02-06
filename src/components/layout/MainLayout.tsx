@@ -29,11 +29,11 @@ export function MainLayout() {
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setSidebarOpen(true)}
-                            className="p-2 -ml-2 text-white hover:bg-white/10 rounded-none"
+                            className="p-2 -ml-2 text-text-primary hover:bg-primary/10 rounded-none"
                         >
                             <Menu className="h-6 w-6" />
                         </button>
-                        <span className="text-lg font-bold text-white tracking-wide">Swaplai</span>
+                        <span className="text-lg font-bold text-text-primary tracking-wide">Swaplai</span>
                     </div>
                 </div>
                 <main className="flex-1">

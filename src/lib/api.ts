@@ -60,5 +60,15 @@ export const api = {
         })
         if (!response.ok) throw new Error('Failed to fetch messages')
         return response.json()
+    },
+
+    deleteConversation: async (id: string) => {
+        const headers = await getHeaders()
+        const response = await fetch(`${API_URL}/agent/conversations/${id}`, {
+            method: 'DELETE',
+            headers
+        })
+        if (!response.ok) throw new Error('Failed to delete conversation')
+        return response.json()
     }
 }

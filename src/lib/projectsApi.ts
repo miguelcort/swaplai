@@ -62,7 +62,8 @@ export const projectsApi = {
                 owner_id: user.id,
                 name: input.name,
                 description: input.description,
-                budget: input.budget || 0
+                budget: input.budget || 0,
+                due_date: input.due_date || null
             })
             .select()
             .single()
@@ -73,9 +74,14 @@ export const projectsApi = {
 
     // Update project
     async updateProject(id: string, updates: Partial<CreateProjectInput>): Promise<Project> {
+        const cleanUpdates = { ...updates }
+        if (cleanUpdates.due_date === '') {
+            cleanUpdates.due_date = null
+        }
+
         const { data, error } = await supabase
             .from('projects')
-            .update(updates)
+            .update(cleanUpdates)
             .eq('id', id)
             .select()
             .single()
@@ -160,6 +166,117 @@ export const projectsApi = {
         return data.advice
     },
 
+    // Get user credits and streak
+    async getUserCredits(): Promise<{ amount: number, global_streak: number }> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
+
+        const { data, error } = await supabase
+            .from('user_credits')
+            .select('amount, global_streak')
+            .eq('user_id', user.id)
+            .single()
+
+        if (error) {
+            // Fallback if table/column doesn't exist yet (for dev robustness)
+            console.warn('Error fetching credits:', error)
+            return { amount: 100, global_streak: 0 }
+        }
+        return { amount: data.amount, global_streak: data.global_streak || 0 }
+    },
+
+    // Check and trigger daily login reward
+    async checkDailyLogin(): Promise<{ success: boolean, message?: string, streak?: number }> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return { success: false }
+
+        try {
+            const { data, error } = await supabase.rpc('handle_daily_login', {
+                user_id_input: user.id
+            })
+            if (error) throw error
+            return data
+        } catch (e: any) {
+            // Silently fail if function doesn't exist (migration not run yet)
+            if (e.code === 'PGRST202' || e.message?.includes('Could not find the function')) {
+                console.warn('Daily login reward skipped: Database function handle_daily_login missing. Run migration 005_journey_update.sql')
+                return { success: false }
+            }
+            console.error('Daily login RPC failed:', e)
+            return { success: false }
+        }
+    },
+
+    // Trigger project completion reward
+    async rewardProjectCompletion(): Promise<{ success: boolean, added?: number }> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return { success: false }
+
+        try {
+            const { data, error } = await supabase.rpc('handle_project_completion', {
+                user_id_input: user.id
+            })
+            if (error) throw error
+            return data
+        } catch (e: any) {
+             // Silently fail if function doesn't exist (migration not run yet)
+             if (e.code === 'PGRST202' || e.message?.includes('Could not find the function')) {
+                console.warn('Project reward skipped: Database function handle_project_completion missing. Run migration 005_journey_update.sql')
+                return { success: false }
+            }
+            console.error('Project completion RPC failed:', e)
+            return { success: false }
+        }
+    },
+
+    // Update global streak (Legacy/Fallback - keep for now but mark deprecated)
+    async updateGlobalStreak(isCompletion: boolean): Promise<any> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
+            
+        // Try calling the RPC first
+        try {
+            const { data, error } = await supabase.rpc('update_global_task_completion', {
+                user_id_input: user.id,
+                is_completion: isCompletion
+            })
+            if (!error) return data
+        } catch (e) {
+            console.log('RPC update_global_task_completion not available, using fallback logic')
+        }
+
+        // Fallback: Client-side update (Not secure for prod, but good for prototype)
+        // 1. Get current stats
+        const current = await this.getUserCredits()
+        let newStreak = current.global_streak
+        let newAmount = current.amount
+        
+        if (isCompletion) {
+            newStreak += 1
+            if (newStreak % 10 === 0) {
+                newAmount += 1
+            }
+        } else {
+            newStreak = 0
+            newAmount = Math.max(0, newAmount - 1)
+        }
+
+        // 2. Update
+        const { error } = await supabase
+            .from('user_credits')
+            .update({ 
+                amount: newAmount, 
+                // global_streak: newStreak // This will fail if column doesn't exist
+            }) 
+            .eq('user_id', user.id)
+            .select()
+            .single()
+            
+        if (error) throw error
+        return { streak: newStreak, credits_change: newAmount - current.amount }
+    },
+
+
     // Accept invitation
     async acceptInvitation(memberId: string): Promise<void> {
         const { error } = await supabase
@@ -218,6 +335,36 @@ export const projectsApi = {
 
         if (error) throw error
         return data || []
+    },
+
+    // Get dashboard stats
+    async getDashboardStats() {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
+
+        // Get projects count (using existing query pattern or simpler count)
+        const { count: projectsCount, error: projectsError } = await supabase
+            .from('projects')
+            .select('*', { count: 'exact', head: true })
+        
+        if (projectsError) throw projectsError
+
+        // Get tasks stats
+        const { data: tasks, error: tasksError } = await supabase
+            .from('tasks')
+            .select('status')
+            .eq('assigned_to', user.id)
+
+        if (tasksError) throw tasksError
+
+        const pendingTasks = tasks?.filter(t => t.status !== 'done' && t.status !== 'completed').length || 0
+        const completedTasks = tasks?.filter(t => t.status === 'done' || t.status === 'completed').length || 0
+
+        return {
+            totalProjects: projectsCount || 0,
+            pendingTasks,
+            completedTasks
+        }
     }
 }
 
@@ -253,6 +400,9 @@ export const tasksApi = {
                 cost: input.cost || 0,
                 assigned_to: input.assigned_to,
                 due_date: input.due_date,
+                frequency: input.frequency,
+                duration: input.duration,
+                notes: input.notes,
                 created_by: user.id
             })
             .select()
@@ -270,6 +420,16 @@ export const tasksApi = {
             .eq('id', taskId)
             .select()
             .single()
+
+        if (error) throw error
+        return data
+    },
+
+    // Toggle task completion (with streak logic)
+    async toggleTaskCompletion(taskId: string): Promise<{ status: string, streak: number, bonus_awarded: boolean }> {
+        const { data, error } = await supabase.rpc('toggle_task_completion', {
+            task_id_input: taskId
+        })
 
         if (error) throw error
         return data
