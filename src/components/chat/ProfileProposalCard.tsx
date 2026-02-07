@@ -153,7 +153,7 @@ export function ProfileProposalCard({ data, onDismiss }: ProfileProposalCardProp
                 <button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="flex items-center gap-2 px-4 py-1.5 bg-primary hover:bg-primary/90 text-black text-xs font-bold font-mono uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center gap-2 px-4 py-1.5 bg-primary hover:bg-primary/90 text-[var(--text-on-primary)] text-xs font-bold font-mono uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {isSaving ? (
                         <>

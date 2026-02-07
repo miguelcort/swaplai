@@ -55,6 +55,7 @@ function App() {
         root.style.setProperty('--text-primary', '#0A0A0A')
         root.style.setProperty('--text-secondary', '#4B5563')
         root.style.setProperty('--border', '#E5E7EB')
+        root.style.setProperty('--text-on-primary', '#FFFFFF')
         root.style.setProperty('color-scheme', 'light')
     } else if (theme === 'custom' && customColors) {
         root.style.setProperty('--primary', customColors.primary)
@@ -64,7 +65,10 @@ function App() {
         // Reset to dark mode defaults for others
         root.style.setProperty('--text-primary', customColors.text || '#FFFFFF')
         root.style.setProperty('--text-secondary', customColors.text ? customColors.text + '99' : '#A3A3A3') // Add transparency for secondary
-        root.style.setProperty('--border', '#333333')
+        // Use color-mix to create a border color derived from text color (20% opacity)
+        // This ensures contrast regardless of whether the theme is light or dark
+        root.style.setProperty('--border', 'color-mix(in srgb, var(--text-primary) 20%, transparent)')
+        root.style.setProperty('--text-on-primary', '#FFFFFF') // Assume white text on custom primary for better contrast in dark mode
         root.style.setProperty('color-scheme', 'dark')
     } else {
         // Dark / System
@@ -75,6 +79,7 @@ function App() {
         root.style.setProperty('--text-primary', '#FFFFFF')
         root.style.setProperty('--text-secondary', '#A3A3A3')
         root.style.setProperty('--border', '#333333')
+        root.style.setProperty('--text-on-primary', '#000000')
         root.style.setProperty('color-scheme', 'dark')
     }
   }, [theme, customColors])

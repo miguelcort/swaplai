@@ -180,32 +180,33 @@ export default function Projects() {
                                         className="bg-bg-dark rounded-none border border-border p-5 flex flex-col justify-between hover:border-primary transition-colors group relative cursor-pointer"
                                         onClick={() => navigate(`/projects/${project.id}`)}
                                     >
-                                        <div className="absolute top-3 right-3 flex items-center gap-2">
-                                            <div className="text-xs font-mono text-primary opacity-50 uppercase tracking-wider">
-                                                {(project.status || '').toUpperCase()}
-                                            </div>
-                                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button
-                                                    onClick={(e) => handleEditProject(project, e)}
-                                                    className="p-1.5 text-text-secondary hover:text-text-primary transition-colors"
-                                                    title="Edit Project"
-                                                >
-                                                    <Edit2 className="h-4 w-4" />
-                                                </button>
-                                                <button
-                                                    onClick={(e) => handleDeleteClick(project, e)}
-                                                    className="p-1.5 text-text-secondary hover:text-red-500 transition-colors"
-                                                    title="Delete Project"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </button>
-                                            </div>
-                                        </div>
-
                                         <div>
-                                            <h2 className="text-lg font-bold text-text-primary font-sans uppercase tracking-wide pr-16 truncate">{project.name}</h2>
+                                            <div className="flex justify-between items-start gap-4 mb-2">
+                                                <h2 className="text-lg font-bold text-text-primary font-sans uppercase tracking-wide break-words">{project.name}</h2>
+                                                <div className="flex items-center gap-2 shrink-0">
+                                                    <div className="text-xs font-mono text-primary opacity-50 uppercase tracking-wider">
+                                                        {(project.status || '').toUpperCase()}
+                                                    </div>
+                                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button
+                                                            onClick={(e) => handleEditProject(project, e)}
+                                                            className="p-1.5 text-text-secondary hover:text-text-primary transition-colors"
+                                                            title="Edit Project"
+                                                        >
+                                                            <Edit2 className="h-4 w-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => handleDeleteClick(project, e)}
+                                                            className="p-1.5 text-text-secondary hover:text-red-500 transition-colors"
+                                                            title="Delete Project"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             {project.description && (
-                                                <p className="text-sm text-text-secondary mt-2 line-clamp-2 font-mono h-10">
+                                                <p className="text-sm text-text-secondary line-clamp-2 font-mono h-10">
                                                     {project.description}
                                                 </p>
                                             )}

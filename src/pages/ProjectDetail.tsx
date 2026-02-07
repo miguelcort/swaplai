@@ -7,6 +7,9 @@ import { InviteTeamModal } from '../components/projects/InviteTeamModal'
 import { CreateTaskModal } from '../components/projects/CreateTaskModal'
 import { SwapTaskModal } from '../components/projects/SwapTaskModal'
 import { TaskApplicationsModal } from '../components/projects/TaskApplicationsModal'
+import { PanicModal } from '../components/projects/PanicModal'
+import { AccountabilityModal } from '../components/projects/AccountabilityModal'
+import { FailurePatternsModal } from '../components/projects/FailurePatternsModal'
 import { Modal } from '../components/ui/Modal'
 import { useAuthStore } from '../stores/authStore'
 import { toast } from '../hooks/useToast'
@@ -27,10 +30,14 @@ export default function ProjectDetail() {
     const [deleteProjectModalOpen, setDeleteProjectModalOpen] = useState(false)
     const [editProjectModalOpen, setEditProjectModalOpen] = useState(false)
     const [editMemberModalOpen, setEditMemberModalOpen] = useState(false)
+    const [panicModalOpen, setPanicModalOpen] = useState(false)
+    const [failurePatternsModalOpen, setFailurePatternsModalOpen] = useState(false)
+    const [accountabilityModalOpen, setAccountabilityModalOpen] = useState(false)
     
     // Selection state
     const [taskToDelete, setTaskToDelete] = useState<string | null>(null)
     const [taskToEdit, setTaskToEdit] = useState<Task | null>(null)
+    const [taskForAccountability, setTaskForAccountability] = useState<Task | null>(null)
     const [memberToRemove, setMemberToRemove] = useState<string | null>(null)
     const [memberToEdit, setMemberToEdit] = useState<ProjectMember | null>(null)
     const [newRole, setNewRole] = useState<'admin' | 'member'>('member')
@@ -313,7 +320,7 @@ export default function ProjectDetail() {
                                     <Edit2 className="h-4 w-4" />
                                 </button>
                                 <button
-                                    onClick={() => setDeleteProjectModalOpen(true)}
+                                    onClick={() => setPanicModalOpen(true)}
                                     className="p-2 text-red-900 hover:text-red-500 hover:bg-primary/5 transition-colors"
                                     title="Delete Project"
                                 >
@@ -343,6 +350,14 @@ export default function ProjectDetail() {
                         
                         {activeTab === 'tasks' && (
                             <div className="flex gap-3">
+                                <button 
+                                    onClick={() => setFailurePatternsModalOpen(true)}
+                                    className="flex items-center gap-2 px-6 py-3 bg-bg-card border border-border text-text-secondary hover:text-primary hover:bg-primary/5 transition-colors font-mono uppercase text-xs tracking-wider font-bold"
+                                    title="Analyze Failure Patterns"
+                                >
+                                    <TrendingUp className="h-4 w-4" />
+                                    Smart Schedule
+                                </button>
                                 <button 
                                     onClick={handleGenerateTasks}
                                     disabled={isGeneratingTasks}
@@ -690,15 +705,6 @@ export default function ProjectDetail() {
                                                                 project?.members?.find(m => m.user_id === task.assigned_to)?.profiles?.email?.[0].toUpperCase() || '?' 
                                                                 : '-'}
                                                         </div>
-                                                        {task.assigned_to && isOwner && (
-                                                            <button
-                                                                onClick={() => { setSwapModalOpen(true); setTaskToSwap(task); }}
-                                                                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-primary/5 rounded text-text-secondary transition-all"
-                                                                title="Swap Task"
-                                                            >
-                                                                <ArrowLeftRight className="h-3 w-3" />
-                                                            </button>
-                                                        )}
                                                         {task.is_community && isOwner && (
                                                             <button
                                                                 onClick={() => { setTaskForApplications(task); setApplicationsModalOpen(true); }}
@@ -732,6 +738,23 @@ export default function ProjectDetail() {
                                                             title={task.status === 'completed' ? "Mark Incomplete" : "Mark Complete"}
                                                         >
                                                             <CheckCircle className="h-4 w-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => { setSwapModalOpen(true); setTaskToSwap(task); }}
+                                                            className="p-1.5 text-text-secondary hover:text-primary transition-colors"
+                                                            title="Swap/Assign Task"
+                                                        >
+                                                            <ArrowLeftRight className="h-4 w-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                setTaskForAccountability(task)
+                                                                setAccountabilityModalOpen(true)
+                                                            }}
+                                                            className="p-1.5 text-text-secondary hover:text-primary transition-colors"
+                                                            title="Get Accountability Coaching"
+                                                        >
+                                                            <Target className="h-4 w-4" />
                                                         </button>
                                                         <button
                                                             onClick={() => openEditTaskModal(task)}
@@ -1119,6 +1142,33 @@ export default function ProjectDetail() {
                 }}
                 task={taskForApplications}
                 onAssign={handleAssignTask}
+            />
+
+            <PanicModal
+                isOpen={panicModalOpen}
+                onClose={() => setPanicModalOpen(false)}
+                projectId={id!}
+                projectName={project?.name || 'Project'}
+                onDeleteConfirm={() => {
+                    setPanicModalOpen(false)
+                    setDeleteProjectModalOpen(true)
+                }}
+            />
+
+            <FailurePatternsModal
+                isOpen={failurePatternsModalOpen}
+                onClose={() => setFailurePatternsModalOpen(false)}
+                projectId={id!}
+                onScheduleApplied={loadTasks}
+            />
+
+            <AccountabilityModal
+                isOpen={accountabilityModalOpen}
+                onClose={() => {
+                    setAccountabilityModalOpen(false)
+                    setTaskForAccountability(null)
+                }}
+                taskTitle={taskForAccountability?.title || ''}
             />
         </div>
     )

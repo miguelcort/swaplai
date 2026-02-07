@@ -70,6 +70,7 @@ export interface TaskApplication {
     bid_amount?: number
     delivery_status?: 'pending' | 'submitted' | 'changes_requested' | 'approved'
     delivery_content?: string
+    delivery_file_path?: string
     delivery_feedback?: string
     rating?: number
     created_at: string

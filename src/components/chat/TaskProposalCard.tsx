@@ -170,7 +170,7 @@ export function TaskProposalCard({ data, onDismiss }: TaskProposalCardProps) {
                 <button 
                     onClick={handleCreate}
                     disabled={isCreating || !selectedProjectId}
-                    className="px-3 py-1.5 bg-primary hover:bg-primary/90 text-black text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-1.5 bg-primary hover:bg-primary/90 text-[var(--text-on-primary)] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {isCreating ? (
                         <>

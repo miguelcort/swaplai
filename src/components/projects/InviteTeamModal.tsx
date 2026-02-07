@@ -107,7 +107,7 @@ export function InviteTeamModal({ isOpen, onClose, projectId, onSuccess }: Invit
                     <button
                         type="submit"
                         disabled={loading || !formData.email}
-                        className="flex-1 px-4 py-3 bg-primary text-black hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-mono uppercase text-xs tracking-wider font-bold"
+                        className="flex-1 px-4 py-3 bg-primary text-[var(--text-on-primary)] hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-mono uppercase text-xs tracking-wider font-bold"
                     >
                         <UserPlus className="h-4 w-4" />
                         {loading ? 'Sending...' : 'Send Invitation'}

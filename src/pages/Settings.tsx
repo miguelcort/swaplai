@@ -457,7 +457,7 @@ export default function Settings() {
                                                         )}
                                                     >
                                                         {pkg.popular && (
-                                                            <div className="absolute -top-2 right-4 bg-primary text-black text-[10px] font-bold px-2 py-0.5 uppercase tracking-wider">
+                                                            <div className="absolute -top-2 right-4 bg-primary text-[var(--text-on-primary)] text-[10px] font-bold px-2 py-0.5 uppercase tracking-wider">
                                                                 Popular
                                                             </div>
                                                         )}
@@ -525,7 +525,7 @@ export default function Settings() {
                                                     </div>
 
                                                     <Button 
-                                                        className="w-full mt-4 bg-primary text-black hover:bg-primary-hover font-bold"
+                                                        className="w-full mt-4 bg-primary text-[var(--text-on-primary)] hover:bg-primary-hover font-bold"
                                                         onClick={handlePayment}
                                                     >
                                                         Pay ${selectedPackage.price.toFixed(2)}

@@ -4,7 +4,7 @@ import type { Task, TaskApplication } from '../types/projects'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
-import { Loader2, DollarSign, Clock, Calendar, CheckCircle2, Globe, Send, User, Star, Eye } from 'lucide-react'
+import { Loader2, DollarSign, Clock, Calendar, CheckCircle2, Globe, Send, User, Star, Eye, Upload, Download, FileText, X } from 'lucide-react'
 import { toast } from '../hooks/useToast'
 import { useAuthStore } from '../stores/authStore'
 import { Modal } from '../components/ui/Modal'
@@ -28,6 +28,39 @@ export default function CommunityTasks() {
     const [reviewingApp, setReviewingApp] = useState<TaskApplication | null>(null)
     const [reviewFeedback, setReviewFeedback] = useState('')
     const [reviewRating, setReviewRating] = useState(5)
+    const [deliveryFile, setDeliveryFile] = useState<File | null>(null)
+    const [downloadUrl, setDownloadUrl] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (!deliveringApp) {
+            setDeliveryContent('')
+            setDeliveryFile(null)
+        }
+    }, [deliveringApp])
+
+    useEffect(() => {
+        const fetchUrl = async () => {
+            if (reviewingApp?.delivery_file_path) {
+                try {
+                    const url = await tasksApi.getDeliverableUrl(reviewingApp.delivery_file_path)
+                    setDownloadUrl(url)
+                } catch (e) {
+                    console.error("Failed to get download URL", e)
+                }
+            } else {
+                setDownloadUrl(null)
+            }
+        }
+        fetchUrl()
+    }, [reviewingApp])
+
+    // Debug effect to log reviewingApp changes
+    useEffect(() => {
+        if (reviewingApp) {
+            console.log('Reviewing application:', reviewingApp)
+            console.log('File path:', reviewingApp.delivery_file_path)
+        }
+    }, [reviewingApp])
 
     const loadTasks = async () => {
         setLoading(true)
@@ -121,7 +154,13 @@ export default function CommunityTasks() {
         if (!deliveringApp) return
         setSubmitting(true)
         try {
-            await tasksApi.submitTaskDelivery(deliveringApp.id, deliveryContent)
+            let filePath = undefined
+            if (deliveryFile && deliveringApp.task) {
+                // Upload file first
+                filePath = await tasksApi.uploadDeliverable(deliveringApp.task.id, deliveryFile)
+            }
+            
+            await tasksApi.submitTaskDelivery(deliveringApp.id, deliveryContent, filePath)
             toast({ title: "Task Delivered", type: "success" })
             setDeliveringApp(null)
             loadTasks()
@@ -472,7 +511,7 @@ export default function CommunityTasks() {
                     ) : (
                         <div className="space-y-4">
                             {taskApplications.map((app) => (
-                                <div key={app.id} className="bg-bg-dark border border-border rounded-lg p-4">
+                                <div key={app.id} className="bg-bg-card border border-border rounded-lg p-4 shadow-sm">
                                     <div className="flex justify-between items-start mb-3">
                                         <div className="flex items-center gap-3">
                                             <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
@@ -487,12 +526,19 @@ export default function CommunityTasks() {
                                                 </div>
                                             </div>
                                         </div>
-                                        <Badge variant={app.status === 'accepted' ? 'secondary' : app.status === 'rejected' ? 'destructive' : 'outline'}>
+                                        <Badge 
+                                            variant="outline" 
+                                            className={`${
+                                                app.status === 'accepted' ? 'bg-green-500/10 text-green-500 border-green-500/20' : 
+                                                app.status === 'rejected' ? 'bg-destructive/10 text-destructive border-destructive/20' : 
+                                                'bg-primary/5 text-text-secondary border-border'
+                                            }`}
+                                        >
                                             {app.status}
                                         </Badge>
                                     </div>
                                     
-                                    <div className="bg-bg-card/50 p-3 rounded mb-3">
+                                    <div className="bg-bg-dark/50 p-3 rounded mb-3 border border-border/50">
                                         <div className="flex justify-between items-center mb-2 text-sm">
                                             <span className="text-text-secondary">Bid Amount:</span>
                                             <span className="font-mono font-bold text-green-500">${app.bid_amount || 'N/A'}</span>
@@ -501,17 +547,25 @@ export default function CommunityTasks() {
                                         
                                         {app.status === 'accepted' && (
                                             <div className="mt-3 pt-3 border-t border-border/50">
-                                                <div className="flex justify-between items-center">
-                                                    <Badge variant={
-                                                        app.delivery_status === 'approved' ? 'default' :
-                                                        app.delivery_status === 'submitted' ? 'secondary' : 'outline'
-                                                    }>
-                                                        Delivery: {app.delivery_status || 'Pending'}
-                                                    </Badge>
+                                                <div className="flex justify-between items-center gap-3">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xs font-bold text-text-secondary uppercase tracking-wider">Status:</span>
+                                                        <Badge 
+                                                            variant="outline"
+                                                            className={`${
+                                                                app.delivery_status === 'approved' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
+                                                                app.delivery_status === 'submitted' ? 'bg-primary/10 text-primary border-primary/20' : 
+                                                                'bg-bg-dark text-text-secondary border-border'
+                                                            }`}
+                                                        >
+                                                            {app.delivery_status || 'Pending'}
+                                                        </Badge>
+                                                    </div>
                                                     
                                                     {app.delivery_status === 'submitted' && (
                                                         <Button 
                                                             size="sm"
+                                                            className="bg-primary text-bg-dark hover:bg-primary/90 font-bold"
                                                             onClick={() => {
                                                                 setReviewingApp(app)
                                                                 setReviewFeedback('')
@@ -581,6 +635,45 @@ export default function CommunityTasks() {
                         value={deliveryContent}
                         onChange={(e) => setDeliveryContent(e.target.value)}
                     />
+                    
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-text-secondary">
+                            Attach File (Optional)
+                        </label>
+                        {!deliveryFile ? (
+                            <div className="border border-dashed border-border rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-bg-card/50 transition-colors cursor-pointer relative">
+                                <input 
+                                    type="file" 
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    onChange={(e) => {
+                                        if (e.target.files && e.target.files[0]) {
+                                            setDeliveryFile(e.target.files[0])
+                                        }
+                                    }}
+                                />
+                                <Upload className="h-8 w-8 text-text-secondary mb-2" />
+                                <p className="text-sm text-text-primary font-medium">Click to upload or drag and drop</p>
+                                <p className="text-xs text-text-secondary mt-1">Max 50MB</p>
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-between bg-bg-card p-3 rounded border border-border">
+                                <div className="flex items-center gap-3 overflow-hidden">
+                                    <FileText className="h-5 w-5 text-primary flex-shrink-0" />
+                                    <span className="text-sm text-text-primary truncate">{deliveryFile.name}</span>
+                                    <span className="text-xs text-text-secondary flex-shrink-0">
+                                        ({(deliveryFile.size / 1024 / 1024).toFixed(2)} MB)
+                                    </span>
+                                </div>
+                                <button 
+                                    onClick={() => setDeliveryFile(null)}
+                                    className="text-text-secondary hover:text-destructive p-1"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
                     <div className="flex justify-end gap-3 pt-2">
                         <Button variant="ghost" onClick={() => setDeliveringApp(null)}>
                             Cancel
@@ -613,6 +706,29 @@ export default function CommunityTasks() {
                         <h4 className="text-sm font-bold text-text-secondary mb-2 uppercase tracking-wider">Delivery Content</h4>
                         <p className="text-text-primary whitespace-pre-wrap font-mono text-sm">{reviewingApp?.delivery_content}</p>
                     </div>
+
+                    {downloadUrl && (
+                        <div className="bg-bg-dark p-4 rounded border border-border mt-4">
+                            <h4 className="text-sm font-bold text-text-secondary mb-2 uppercase tracking-wider">Attached File</h4>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2 text-text-primary">
+                                    <FileText className="h-4 w-4 text-primary" />
+                                    <span className="text-sm truncate max-w-[200px]">
+                                        {reviewingApp?.delivery_file_path?.split('/').pop()?.split('_').slice(1).join('_') || 'Delivery File'}
+                                    </span>
+                                </div>
+                                <a 
+                                    href={downloadUrl} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 text-sm text-primary hover:underline"
+                                >
+                                    <Download className="h-4 w-4" />
+                                    Download
+                                </a>
+                            </div>
+                        </div>
+                    )}
 
                     <div>
                         <label className="block text-sm font-medium text-text-secondary mb-1">

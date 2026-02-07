@@ -300,7 +300,7 @@ export function CreateTaskModal({ isOpen, onClose, projectId, members, onSuccess
                     <button
                         type="submit"
                         disabled={loading}
-                        className="flex-1 px-4 py-3 bg-primary text-black hover:bg-primary/90 transition-colors font-mono uppercase text-xs tracking-wider font-bold disabled:opacity-50"
+                        className="flex-1 px-4 py-3 bg-primary text-[var(--text-on-primary)] hover:bg-primary/90 transition-colors font-mono uppercase text-xs tracking-wider font-bold disabled:opacity-50"
                     >
                         {loading ? (taskToEdit ? 'UPDATING...' : 'CREATING...') : (taskToEdit ? 'UPDATE TASK' : 'CREATE TASK')}
                     </button>

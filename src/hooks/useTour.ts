@@ -15,8 +15,8 @@ export function useTour() {
                 {
                     element: hasFloatingChat ? '#floating-chat-toggle' : '#nav-item-conversations',
                     popover: {
-                        title: 'Aquí inicia todo',
-                        description: 'El chat es el corazón de Swaplai. Puedes usarlo para crear proyectos, tareas, o hacer cualquier pregunta. ¡Es tu asistente personal!',
+                        title: 'Everything starts here',
+                        description: 'The chat is the heart of Swaplai. You can use it to create projects, tasks, or ask any question. It is your personal assistant!',
                         side: hasFloatingChat ? 'left' : 'right',
                         align: 'start'
                     }
@@ -24,8 +24,8 @@ export function useTour() {
                 {
                     element: '#nav-item-projects',
                     popover: {
-                        title: 'Gestión de Proyectos',
-                        description: 'Aquí puedes ver, crear y organizar todos tus proyectos y sus tareas asociadas.',
+                        title: 'Project Management',
+                        description: 'Here you can view, create, and organize all your projects and their associated tasks.',
                         side: 'right',
                         align: 'start'
                     }
@@ -33,8 +33,8 @@ export function useTour() {
                 {
                     element: '#nav-item-community',
                     popover: {
-                        title: 'Comunidad',
-                        description: 'Explora tareas publicadas por otros usuarios, aplica a ellas y colabora. ¡Gana reputación y créditos!',
+                        title: 'Community',
+                        description: 'Explore tasks published by other users, apply to them, and collaborate. Earn reputation and credits!',
                         side: 'right',
                         align: 'start'
                     }
@@ -42,8 +42,8 @@ export function useTour() {
                 {
                     element: '#nav-item-journey',
                     popover: {
-                        title: 'Tu Progreso',
-                        description: 'Sigue tu avance, mantén tu racha diaria y desbloquea recompensas por tu actividad.',
+                        title: 'Your Journey',
+                        description: 'Track your progress, maintain your daily streak, and unlock rewards for your activity.',
                         side: 'right',
                         align: 'start'
                     }
@@ -51,8 +51,8 @@ export function useTour() {
                 {
                     element: '#nav-item-settings',
                     popover: {
-                        title: 'Configuración',
-                        description: 'Personaliza tu perfil, preferencias y ajusta la aplicación a tu gusto.',
+                        title: 'Settings',
+                        description: 'Customize your profile, preferences, and adjust the application to your liking.',
                         side: 'right',
                         align: 'start'
                     }

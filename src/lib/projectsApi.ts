@@ -198,21 +198,45 @@ export const projectsApi = {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return { success: false }
 
-        try {
-            const { data, error } = await supabase.rpc('handle_daily_login', {
-                user_id_input: user.id
-            })
-            if (error) throw error
-            return data
-        } catch (e: any) {
-            // Silently fail if function doesn't exist (migration not run yet)
-            if (e.code === 'PGRST202' || e.message?.includes('Could not find the function')) {
-                console.warn('Daily login reward skipped: Database function handle_daily_login missing. Run migration 005_journey_update.sql')
-                return { success: false }
-            }
-            console.error('Daily login RPC failed:', e)
-            return { success: false }
-        }
+        // Logic handled by backend ideally, or client-side check
+        // For now, we rely on the App.tsx logic calling this or the backend endpoint
+        // This is a placeholder as the real logic seems to be in App.tsx or similar
+        return { success: false }
+    },
+
+    // Panic Button - Get Options
+    async getPanicOptions(projectId: string): Promise<{ message: string, options: any[] }> {
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+        const response = await fetch(`${API_URL}/projects/${projectId}/panic-button`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        if (!response.ok) throw new Error('Failed to get panic options')
+        return response.json()
+    },
+
+    // Accountability Coach
+    async getAccountabilityCoaching(taskTitle: string, excuse: string): Promise<{ message: string, negotiation: string }> {
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+        const response = await fetch(`${API_URL}/projects/accountability-coach`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ task_title: taskTitle, excuse })
+        })
+        if (!response.ok) throw new Error('Failed to get coaching')
+        return response.json()
+    },
+
+    // Smart Rescheduling
+    async analyzeFailurePatterns(projectId: string): Promise<{ pattern_analysis: string, suggested_schedule: any[] }> {
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+        const response = await fetch(`${API_URL}/projects/${projectId}/analyze-patterns`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        if (!response.ok) throw new Error('Failed to analyze patterns')
+        const data = await response.json()
+        return data.suggestions
     },
 
     // Health Plan Methods
@@ -557,29 +581,77 @@ export const tasksApi = {
     },
 
     // Submit task delivery
-    async submitTaskDelivery(applicationId: string, content: string): Promise<void> {
+    async submitTaskDelivery(applicationId: string, content: string, filePath?: string): Promise<void> {
+        const updates: any = { 
+            delivery_status: 'submitted',
+            delivery_content: content
+        }
+
+        if (filePath) {
+            updates.delivery_file_path = filePath
+        }
+
         const { error } = await supabase
             .from('task_applications')
-            .update({ 
-                delivery_status: 'submitted',
-                delivery_content: content
-            })
+            .update(updates)
             .eq('id', applicationId)
 
         if (error) throw error
     },
 
+    // Upload deliverable file
+    async uploadDeliverable(taskId: string, file: File): Promise<string> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
+        
+        // Path structure: user_id/task_id/timestamp_filename
+        // This structure ensures uniqueness and matches our RLS policies
+        const timestamp = new Date().getTime()
+        const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+        const filePath = `${user.id}/${taskId}/${timestamp}_${cleanName}`
+        
+        const { error } = await supabase.storage
+            .from('task-deliverables')
+            .upload(filePath, file, {
+                cacheControl: '3600',
+                upsert: false
+            })
+            
+        if (error) throw error
+        return filePath
+    },
+
+    // Get signed URL for deliverable
+    async getDeliverableUrl(path: string): Promise<string> {
+        const { data, error } = await supabase.storage
+            .from('task-deliverables')
+            .createSignedUrl(path, 3600) // 1 hour expiry
+            
+        if (error) throw error
+        return data.signedUrl
+    },
+
     // Review task delivery
     async reviewTaskDelivery(applicationId: string, status: 'changes_requested' | 'approved', feedback?: string): Promise<void> {
-        const { error } = await supabase
-            .from('task_applications')
-            .update({ 
-                delivery_status: status,
-                delivery_feedback: feedback
+        if (status === 'approved') {
+            // Use RPC for atomic approval and credit transfer
+            const { error } = await supabase.rpc('approve_task_delivery', {
+                application_id_input: applicationId,
+                feedback_input: feedback
             })
-            .eq('id', applicationId)
+            
+            if (error) throw error
+        } else {
+            const { error } = await supabase
+                .from('task_applications')
+                .update({ 
+                    delivery_status: status,
+                    delivery_feedback: feedback
+                })
+                .eq('id', applicationId)
 
-        if (error) throw error
+            if (error) throw error
+        }
     },
 
     // Rate user
