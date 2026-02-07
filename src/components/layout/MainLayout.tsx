@@ -21,11 +21,11 @@ export function MainLayout() {
     })
 
     return (
-        <div className="flex min-h-screen bg-bg-dark font-sans">
+        <div className="flex h-screen bg-bg-dark font-sans overflow-hidden">
             <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-            <div className="flex flex-col flex-1 min-w-0 relative">
+            <div className="flex flex-col flex-1 min-w-0 relative h-full">
                 {/* Mobile Header */}
-                <div className="md:hidden flex items-center justify-between bg-bg-dark border-b border-border px-4 py-3 sticky top-0 z-30">
+                <div className="md:hidden flex items-center justify-between bg-bg-dark border-b border-border px-4 py-3 sticky top-0 z-30 shrink-0">
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setSidebarOpen(true)}
@@ -36,7 +36,7 @@ export function MainLayout() {
                         <span className="text-lg font-bold text-text-primary tracking-wide">Swaplai</span>
                     </div>
                 </div>
-                <main className="flex-1">
+                <main className="flex-1 overflow-y-auto overflow-x-hidden relative">
                     <Outlet />
                 </main>
                 <FloatingChatWidget />

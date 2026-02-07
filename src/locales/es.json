@@ -1,0 +1,17 @@
+{
+  "landing": {
+    "nav": {
+      "login": "Iniciar sesión",
+      "getStarted": "Comenzar"
+    },
+    "hero": {
+      "badge": "Flujo de trabajo con IA",
+      "titlePre": "Estructura para tu",
+      "titleMain": "Mente Dispersa",
+      "description": "La primera herramienta de gestión de proyectos diseñada para el cerebro neurodivergente. Combinamos <1>IA empática</1> con <3> responsabilidad rígida</3> para convertir el caos en logros.",
+      "startBuilding": "Empezar a construir",
+      "getStarted": "Comenzar",
+      "trustedBy": "Con la confianza de <1>2,000+ creadores</1>"
+    }
+  }
+}

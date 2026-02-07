@@ -1,19 +1,29 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
+import { useAuthStore } from '../../stores/authStore'
+import { useSettingsStore } from '../../stores/settingsStore'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../components/ui/Card'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, Sun, Moon } from 'lucide-react'
 
 export default function Login() {
     const navigate = useNavigate()
+    const { user, isLoading: authLoading } = useAuthStore()
+    const { theme, setTheme } = useSettingsStore()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [formData, setFormData] = useState({
         email: '',
         password: '',
     })
+
+    useEffect(() => {
+        if (!authLoading && user) {
+            navigate('/dashboard')
+        }
+    }, [user, authLoading, navigate])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -36,7 +46,16 @@ export default function Login() {
     }
 
     return (
-        <div className="min-h-screen bg-bg-light flex items-center justify-center p-4">
+        <div className="min-h-screen bg-bg-light flex items-center justify-center p-4 relative">
+            <div className="absolute top-4 right-4">
+                <Button
+                    variant="ghost"
+                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    className="rounded-full w-10 h-10 p-0 hover:bg-primary/10"
+                >
+                    {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                </Button>
+            </div>
             <Card className="w-full max-w-md">
                 <CardHeader className="space-y-1 text-center">
                     <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>

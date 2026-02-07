@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { MainLayout } from './components/layout/MainLayout'
+import LandingPage from './pages/LandingPage'
 import Dashboard from './pages/Dashboard'
 import Chat from './pages/Chat'
 import Notifications from './pages/Notifications'
@@ -88,13 +89,14 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<MainLayout />}>
-            <Route index element={<Dashboard />} />
+          <Route element={<MainLayout />}>
+            <Route path="dashboard" element={<Dashboard />} />
             <Route path="projects" element={<Projects />} />
             <Route path="projects/:id" element={<ProjectDetail />} />
             <Route path="community" element={<CommunityTasks />} />

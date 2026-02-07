@@ -17,7 +17,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
     }, [fetchProfile])
 
     const navItems = [
-        { icon: LayoutDashboard, label: 'Dashboard', href: '/', id: 'dashboard' },
+        { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard', id: 'dashboard' },
         { icon: ListTree, label: 'Projects', href: '/projects', id: 'projects' },
         { icon: Globe, label: 'Community', href: '/community', id: 'community' },
         { icon: Trophy, label: 'Journey', href: '/journey', id: 'journey' },
@@ -37,7 +37,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
           user?.email?.substring(0, 2).toUpperCase() || "SW"
 
     const isActive = (href: string) => {
-        if (href === '/') return location.pathname === '/'
+        if (href === '/dashboard') return location.pathname === '/dashboard'
         return location.pathname.startsWith(href)
     }
 

@@ -31,7 +31,7 @@ export const useSettingsStore = create<SettingsState>()(
                 push: true,
                 marketing: false,
             },
-            theme: 'system',
+            theme: 'light',
             language: 'en',
             customColors: {
                 background: '#0A0A0A',

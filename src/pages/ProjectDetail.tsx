@@ -5,6 +5,7 @@ import type { Project, Task, ProjectMember } from '../types/projects'
 import { projectsApi, tasksApi } from '../lib/projectsApi'
 import { InviteTeamModal } from '../components/projects/InviteTeamModal'
 import { CreateTaskModal } from '../components/projects/CreateTaskModal'
+import { CreateProjectModal } from '../components/projects/CreateProjectModal'
 import { SwapTaskModal } from '../components/projects/SwapTaskModal'
 import { TaskApplicationsModal } from '../components/projects/TaskApplicationsModal'
 import { PanicModal } from '../components/projects/PanicModal'
@@ -273,7 +274,7 @@ export default function ProjectDetail() {
             <div className="flex flex-col items-center justify-center min-h-screen bg-bg-dark">
                 <p className="text-text-secondary mb-4 font-mono">PROJECT NOT FOUND</p>
                 <button
-                    onClick={() => navigate('/')}
+                    onClick={() => navigate('/dashboard')}
                     className="px-6 py-3 bg-primary text-bg-dark hover:bg-primary/90 font-bold font-mono uppercase tracking-wider"
                 >
                     Return to Dashboard
@@ -1101,26 +1102,18 @@ export default function ProjectDetail() {
                 </div>
             </Modal>
 
-            {/* Edit Project Modal - Placeholder */}
-            <Modal
-                isOpen={editProjectModalOpen}
-                onClose={() => setEditProjectModalOpen(false)}
-                title="Edit Project"
-            >
-                <div className="space-y-4">
-                    <p className="text-text-secondary font-mono text-sm">
-                        Edit project functionality is coming soon.
-                    </p>
-                    <div className="flex justify-end gap-3 pt-4">
-                        <button
-                            onClick={() => setEditProjectModalOpen(false)}
-                            className="px-6 py-2 bg-primary text-bg-dark hover:bg-primary/90 font-mono text-sm font-bold uppercase tracking-wider"
-                        >
-                            Close
-                        </button>
-                    </div>
-                </div>
-            </Modal>
+            {/* Edit Project Modal */}
+            {project && (
+                <CreateProjectModal
+                    isOpen={editProjectModalOpen}
+                    onClose={() => setEditProjectModalOpen(false)}
+                    onSuccess={() => {
+                        setEditProjectModalOpen(false)
+                        loadProject()
+                    }}
+                    projectToEdit={project}
+                />
+            )}
 
             <SwapTaskModal
                 isOpen={swapModalOpen}

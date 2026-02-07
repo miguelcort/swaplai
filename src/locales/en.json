@@ -1,0 +1,17 @@
+{
+  "landing": {
+    "nav": {
+      "login": "Log in",
+      "getStarted": "Get Started"
+    },
+    "hero": {
+      "badge": "AI-Powered Workflow",
+      "titlePre": "Structure for your",
+      "titleMain": "Wandering Mind",
+      "description": "The first project management tool designed for the neurodivergent brain. We combine <1>empathetic AI</1> with <3> rigid accountability</3> to turn chaos into completion.",
+      "startBuilding": "Start Building",
+      "getStarted": "Get started",
+      "trustedBy": "Trusted by <1>2,000+ creators</1>"
+    }
+  }
+}
