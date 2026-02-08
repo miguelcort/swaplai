@@ -1,13 +1,28 @@
 import { Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { useSupabaseRealtime } from '../../hooks/useSupabaseRealtime'
+import { useTour } from '../../hooks/useTour'
+import { useSettingsStore } from '../../stores/settingsStore'
 import { toast } from '../../hooks/useToast'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Menu } from 'lucide-react'
 import { FloatingChatWidget } from '../chat/FloatingChatWidget'
 
 export function MainLayout() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
+    const { hasSeenTour, setHasSeenTour } = useSettingsStore()
+    const { startTour } = useTour()
+
+    // Auto-start tour for new users
+    useEffect(() => {
+        if (!hasSeenTour) {
+            const timer = setTimeout(() => {
+                startTour()
+                setHasSeenTour(true)
+            }, 1000)
+            return () => clearTimeout(timer)
+        }
+    }, [hasSeenTour, startTour, setHasSeenTour])
 
     // Listen for new messages globally
     useSupabaseRealtime({ table: 'messages', event: 'INSERT' }, (payload) => {

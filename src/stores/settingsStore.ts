@@ -11,6 +11,7 @@ interface SettingsState {
     notifications: NotificationSettings
     theme: 'light' | 'dark' | 'system' | 'custom'
     language: 'en' | 'es'
+    hasSeenTour: boolean
     customColors?: {
         background: string
         primary: string
@@ -20,6 +21,7 @@ interface SettingsState {
     toggleNotification: (key: keyof NotificationSettings) => void
     setTheme: (theme: 'light' | 'dark' | 'system' | 'custom') => void
     setLanguage: (lang: 'en' | 'es') => void
+    setHasSeenTour: (seen: boolean) => void
     setCustomColors: (colors: { background: string; primary: string; text: string }) => void
 }
 
@@ -33,6 +35,7 @@ export const useSettingsStore = create<SettingsState>()(
             },
             theme: 'light',
             language: 'en',
+            hasSeenTour: false,
             customColors: {
                 background: '#0A0A0A',
                 primary: '#C9A962',
@@ -48,6 +51,7 @@ export const useSettingsStore = create<SettingsState>()(
                 })),
             setTheme: (theme) => set({ theme }),
             setLanguage: (language) => set({ language }),
+            setHasSeenTour: (hasSeenTour) => set({ hasSeenTour }),
             setCustomColors: (colors) => set({ customColors: colors }),
         }),
         {
