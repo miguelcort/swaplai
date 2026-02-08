@@ -37,7 +37,7 @@ export default function Login() {
             })
 
             if (error) throw error
-            navigate('/')
+            navigate('/dashboard')
         } catch (err: any) {
             setError(err.message || 'An error occurred during login')
         } finally {
